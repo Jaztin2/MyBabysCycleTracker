@@ -483,6 +483,12 @@
     <div id="recent-log-list"><div class="empty-state">No entries yet.</div></div>
   </div>
 
+  <div class="log-card" style="margin-top:10px">
+    <div class="log-card-title">💌 Customize Phase Messages</div>
+    <div style="font-size:.76rem;color:var(--muted);margin-bottom:14px">Edit the tips and messages shown for each phase. Changes are saved to this device.</div>
+    <div id="tips-editor-body"></div>
+  </div>
+
   <div class="log-card" style="margin-top:10px;margin-bottom:14px">
     <div class="log-card-title">⚙️ Cycle Settings</div>
 
@@ -686,14 +692,16 @@ let db = {
   cycles: [], moods: [],
   cycleLength: 28, periodLength: 5,
   delayed: false, ovulationDate: null,
+  customTips: {},
   bootstrapped: false
 };
 
-let calViewDate      = new Date();
-let homeMoodSel      = null;
-let logMoodSel       = null;
-let logSymptomsSel   = new Set();
+let calViewDate       = new Date();
+let homeMoodSel       = null;
+let logMoodSel        = null;
+let logSymptomsSel    = new Set();
 let selectedTipsPhase = null;
+let editorPhase       = 'menstrual';
 
 // ════════════ STORAGE ════════════
 
@@ -1243,6 +1251,12 @@ function clearData() {
 
 // ════════════ PHASE TIPS ════════════
 
+function getTips(phase) {
+  if (db.customTips && db.customTips[phase] && db.customTips[phase].length)
+    return db.customTips[phase];
+  return PHASES[phase] ? [...PHASES[phase].tips] : [...DELAYED_INFO.tips];
+}
+
 function selectTipsPhase(phase) {
   selectedTipsPhase = phase;
   renderPhaseTips(phase);
@@ -1258,6 +1272,8 @@ function renderPhaseTips(phase) {
     { key:'luteal',     label:'🌙 Luteal' },
   ];
   const info = PHASES[phase] || DELAYED_INFO;
+  const tips = getTips(phase);
+
   const tabsHtml = tabs.map(t => {
     const active = phase === t.key;
     const c = PHASES[t.key].color;
@@ -1271,13 +1287,116 @@ function renderPhaseTips(phase) {
   }).join('');
 
   tipsEl.innerHTML = `
-    <div style="display:flex;gap:6px;margin-bottom:14px">${tabsHtml}</div>
-    <div class="tip-box" style="background:${info.color}12;border:1px solid ${info.color}30;color:${info.color};margin-bottom:8px">
+    <div style="display:flex;gap:6px;margin-bottom:12px">${tabsHtml}</div>
+    <div class="tip-box" style="background:${info.color}12;border:1px solid ${info.color}30;color:${info.color};margin-bottom:10px">
       ${info.emoji} <strong>${info.name}</strong>
     </div>
-    ${info.tips.map(t => `
+    ${tips.map(t => `
       <div style="font-size:.82rem;padding:9px 0;border-bottom:1px solid var(--border);color:var(--text);line-height:1.55">${t}</div>
     `).join('')}`;
+}
+
+// ════════════ TIPS EDITOR ════════════
+
+function selectEditorPhase(phase) {
+  editorPhase = phase;
+  renderTipsEditor();
+}
+
+function addEditorTipRow() {
+  const list = document.getElementById('tip-edit-list');
+  const div = document.createElement('div');
+  div.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;align-items:flex-start';
+  div.innerHTML = `
+    <textarea class="tip-edit-input" placeholder="Type your message here..." rows="2"
+      style="flex:1;background:var(--card2);border:1px solid var(--border);border-radius:10px;
+      padding:10px 12px;color:var(--text);font-size:.82rem;outline:none;font-family:inherit;
+      resize:none;line-height:1.5"></textarea>
+    <button onclick="this.parentElement.remove()" style="
+      background:transparent;border:1px solid #f43f5e30;color:#f43f5e80;margin-top:2px;
+      border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:1.1rem;
+      display:flex;align-items:center;justify-content:center;flex-shrink:0">×</button>`;
+  list.appendChild(div);
+  div.querySelector('textarea').focus();
+}
+
+function savePhaseTips() {
+  const inputs = document.querySelectorAll('.tip-edit-input');
+  const tips = [...inputs].map(i => i.value.trim()).filter(Boolean);
+  if (!tips.length) { showToast('Add at least one message!'); return; }
+  if (!db.customTips) db.customTips = {};
+  db.customTips[editorPhase] = tips;
+  save();
+  renderTipsEditor();
+  showToast('Messages saved! 💾');
+}
+
+function resetPhaseTips() {
+  if (!confirm('Reset this phase back to default messages?')) return;
+  if (!db.customTips) db.customTips = {};
+  db.customTips[editorPhase] = [];
+  save();
+  renderTipsEditor();
+  showToast('Reset to defaults ✓');
+}
+
+function renderTipsEditor() {
+  const el = document.getElementById('tips-editor-body');
+  if (!el) return;
+  const tabs = [
+    { key:'menstrual',  label:'🩸 Period' },
+    { key:'follicular', label:'🌸 Follicular' },
+    { key:'ovulation',  label:'🌟 Ovulation' },
+    { key:'luteal',     label:'🌙 Luteal' },
+  ];
+  const info = PHASES[editorPhase] || DELAYED_INFO;
+  const tips = getTips(editorPhase);
+
+  const tabsHtml = tabs.map(t => {
+    const active = editorPhase === t.key;
+    const c = PHASES[t.key].color;
+    return `<button onclick="selectEditorPhase('${t.key}')" style="
+      flex:1;padding:7px 2px;border-radius:10px;font-size:.65rem;font-weight:${active?'700':'400'};
+      cursor:pointer;transition:all .2s;line-height:1.3;
+      border:1px solid ${active ? c : 'var(--border)'};
+      background:${active ? c+'22' : 'var(--card2)'};
+      color:${active ? c : 'var(--muted)'}
+    ">${t.label}</button>`;
+  }).join('');
+
+  const rowsHtml = tips.map(t => `
+    <div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start">
+      <textarea class="tip-edit-input" rows="2"
+        style="flex:1;background:var(--card2);border:1px solid var(--border);border-radius:10px;
+        padding:10px 12px;color:var(--text);font-size:.82rem;outline:none;font-family:inherit;
+        resize:none;line-height:1.5">${t.replace(/</g,'&lt;')}</textarea>
+      <button onclick="this.parentElement.remove()" style="
+        background:transparent;border:1px solid #f43f5e30;color:#f43f5e80;margin-top:2px;
+        border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:1.1rem;
+        display:flex;align-items:center;justify-content:center;flex-shrink:0">×</button>
+    </div>`).join('');
+
+  el.innerHTML = `
+    <div style="display:flex;gap:6px;margin-bottom:14px">${tabsHtml}</div>
+    <div style="font-size:.8rem;color:${info.color};font-weight:600;margin-bottom:10px">${info.emoji} ${info.name} messages</div>
+    <div id="tip-edit-list">${rowsHtml}</div>
+    <button onclick="addEditorTipRow()" style="
+      width:100%;padding:10px;background:var(--card2);border:1px dashed var(--border);
+      border-radius:10px;color:var(--muted);font-size:.8rem;cursor:pointer;margin:4px 0 14px;font-family:inherit">
+      + Add message
+    </button>
+    <div style="display:flex;gap:8px">
+      <button onclick="resetPhaseTips()" style="
+        flex:1;padding:11px;background:transparent;border:1px solid var(--border);
+        border-radius:10px;color:var(--muted);font-size:.76rem;cursor:pointer;font-family:inherit">
+        Reset defaults
+      </button>
+      <button onclick="savePhaseTips()" style="
+        flex:2;padding:11px;background:linear-gradient(135deg,#f43f5e,#a855f7);
+        border:none;border-radius:10px;color:white;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit">
+        💾 Save Messages
+      </button>
+    </div>`;
 }
 
 // ════════════ INSIGHTS ════════════
@@ -1396,7 +1515,7 @@ function goPage(name) {
   document.getElementById('nb-'+name).classList.add('active');
   if (name === 'calendar') renderCalendar();
   if (name === 'insights') renderInsights();
-  if (name === 'log')      renderRecentLogs();
+  if (name === 'log')      { renderRecentLogs(); renderTipsEditor(); }
   window.scrollTo({ top:0, behavior:'smooth' });
 }
 
@@ -1440,6 +1559,7 @@ function init() {
   renderMoodGrid('log-mood-grid');
   renderSymptomGrid();
   renderRecentLogs();
+  renderTipsEditor();
   renderHome();
 }
 
