@@ -668,7 +668,17 @@ function save() {
 
 // ════════════ CYCLE LOGIC ════════════
 
-function toDateStr(d) { return new Date(d).toISOString().split('T')[0]; }
+function toDateStr(d) {
+  const dt = (d instanceof Date) ? d : new Date(d);
+  return dt.getFullYear() + '-' +
+    String(dt.getMonth() + 1).padStart(2, '0') + '-' +
+    String(dt.getDate()).padStart(2, '0');
+}
+
+function parseLocalDate(ds) {
+  const [y, m, d] = ds.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
 
 function daysBetween(a, b) {
   const da = new Date(a); da.setHours(0,0,0,0);
@@ -1049,7 +1059,7 @@ function dayTap(ds) {
   const entry = db.moods.find(e => e.date === ds);
   const mood  = entry ? MOODS.find(m => m.id === entry.mood) : null;
   const syms  = entry ? (entry.symptoms||[]).map(s => SYMPTOMS.find(x => x.id===s)?.emoji).filter(Boolean).join('') : '';
-  const label = new Date(ds).toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+  const label = parseLocalDate(ds).toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
 
   let msg = label;
   if (pInfo) msg += ` · ${pInfo.emoji} ${pInfo.shortName}`;
@@ -1114,7 +1124,7 @@ function renderRecentLogs() {
   el.innerHTML = sorted.map(e => {
     const mood = e.mood ? MOODS.find(m => m.id === e.mood) : null;
     const syms = (e.symptoms||[]).map(s => SYMPTOMS.find(x => x.id===s)?.emoji||'').filter(Boolean);
-    const dl   = new Date(e.date).toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+    const dl   = parseLocalDate(e.date).toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
     return `<div class="rle">
       <div class="rle-emoji">${mood ? mood.emoji : '🩺'}</div>
       <div class="rle-body">
@@ -1209,11 +1219,11 @@ function renderInsights() {
     const pInfo = phase ? PHASES[phase] : null;
     const dtop  = daysToNextPeriod();
     const nextStart = db.ovulationDate
-      ? new Date(new Date(db.ovulationDate).getTime() + 14*86400000)
-      : new Date(new Date(last.start).getTime() + db.cycleLength*86400000);
+      ? new Date(parseLocalDate(db.ovulationDate).getTime() + 14*86400000)
+      : new Date(parseLocalDate(last.start).getTime() + db.cycleLength*86400000);
     const ovDate = db.ovulationDate
-      ? new Date(db.ovulationDate)
-      : new Date(new Date(last.start).getTime() + Math.round(db.cycleLength*0.5-1)*86400000);
+      ? parseLocalDate(db.ovulationDate)
+      : new Date(parseLocalDate(last.start).getTime() + Math.round(db.cycleLength*0.5-1)*86400000);
 
     overviewEl.innerHTML = `
       <div class="info-row"><span style="color:var(--muted)">Current Phase</span>
@@ -1223,7 +1233,7 @@ function renderInsights() {
       <div class="info-row"><span style="color:var(--muted)">Next Period (est.)</span>
         <span class="val">${db.delayed?'After ovulation + 14 days':nextStart.toLocaleDateString('en-US',{month:'short',day:'numeric'})+(dtop?' · '+dtop+' days':'')}</span></div>
       <div class="info-row"><span style="color:var(--muted)">Ovulation</span>
-        <span class="val">${db.ovulationDate?'🌟 '+new Date(db.ovulationDate).toLocaleDateString('en-US',{month:'short',day:'numeric'}):db.delayed?'⏳ Not yet':ovDate.toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span></div>
+        <span class="val">${db.ovulationDate?'🌟 '+parseLocalDate(db.ovulationDate).toLocaleDateString('en-US',{month:'short',day:'numeric'}):db.delayed?'⏳ Not yet':ovDate.toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span></div>
       <div class="info-row"><span style="color:var(--muted)">Logged Cycles</span><span class="val">${db.cycles.length}</span></div>
       <div class="info-row"><span style="color:var(--muted)">Total Entries</span><span class="val">${db.moods.length}</span></div>`;
   } else {
@@ -1282,7 +1292,7 @@ function renderInsights() {
       const phase = getPhaseForDate(e.date);
       const pInfo = phase ? PHASES[phase] : null;
       const syms  = (e.symptoms||[]).map(s=>SYMPTOMS.find(x=>x.id===s)?.emoji||'').filter(Boolean);
-      const dl    = new Date(e.date).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+      const dl    = parseLocalDate(e.date).toLocaleDateString('en-US',{month:'short',day:'numeric'});
       return `<div class="rle">
         <div class="rle-emoji">${mood?mood.emoji:'🩺'}</div>
         <div class="rle-body">
