@@ -724,10 +724,10 @@ let currentTrackIdx = -1;
 let musicOn         = false;
 
 const DEFAULT_PLAYLIST = [
-  { name: 'Padaba Taka',  file: 'Padaba Taka.mp3' },
-  { name: 'Leonora',      file: 'Leonora.mp3' },
-  { name: 'Demonyo',      file: 'Demonyo.mp3' },
-  { name: 'Be with You',  file: 'Be with You.mp3' },
+  { name: 'Padaba Taka',  file: 'Padaba Taka.mp3',  cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/8b/6a/a7/8b6aa7bc-2789-a1ec-e38a-f0de022016cd/196589593948.jpg/300x300bb.jpg' },
+  { name: 'Leonora',      file: 'Leonora.mp3',       cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/16/3c/21/163c2196-aea1-c77c-f81f-f6516427b010/5054197597794.jpg/300x300bb.jpg' },
+  { name: 'Demonyo',      file: 'Demonyo.mp3',       cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/ed/ab/52/edab52fb-d46f-8a2e-5f77-f1c5a64ae88d/16UMGIM88937.rgb.jpg/300x300bb.jpg' },
+  { name: 'Be with You',  file: 'Be with You.mp3',   cover: 'https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/43/a1/ba/43a1ba22-77a2-48cd-c01c-6ccf5d37d9f5/3614593361775.png/300x300bb.jpg' },
 ];
 
 function loadPlaylist() {
@@ -764,6 +764,7 @@ function renderPlaylistUI() {
   el.innerHTML = playlist.map((t, i) => `
     <div class="mp-item ${i === currentTrackIdx ? 'active' : ''}" onclick="playTrack(${i})">
       <div class="mp-num">${i === currentTrackIdx && musicOn ? '🎶' : i + 1}</div>
+      ${t.cover ? `<img src="${t.cover}" style="width:38px;height:38px;border-radius:9px;object-fit:cover;flex-shrink:0">` : '<div style="width:38px;height:38px;border-radius:9px;background:var(--card2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.1rem">🎵</div>'}
       <div class="mp-name">${t.name}</div>
       <button class="mp-del" onclick="event.stopPropagation();removeTrack(${i})" title="Remove">✕</button>
     </div>`).join('');
@@ -815,14 +816,19 @@ function updateMusicUI() {
   const playBtn = document.getElementById('mp-play-btn');
   if (track && musicOn) {
     btn.classList.add('playing'); note.textContent = '🎶'; lbl.textContent = track.name;
-    art.classList.add('playing'); nameEl.textContent = track.name; subEl.textContent = 'Now playing ♪';
+    art.classList.add('playing');
+    art.innerHTML = track.cover ? `<img src="${track.cover}" style="width:100%;height:100%;border-radius:15px;object-fit:cover">` : '🎵';
+    nameEl.textContent = track.name; subEl.textContent = 'Now playing ♪';
     if (playBtn) playBtn.textContent = '⏸';
   } else if (track) {
     btn.classList.remove('playing'); note.textContent = '🎵'; lbl.textContent = track.name;
-    art.classList.remove('playing'); nameEl.textContent = track.name; subEl.textContent = 'Paused';
+    art.classList.remove('playing');
+    art.innerHTML = track.cover ? `<img src="${track.cover}" style="width:100%;height:100%;border-radius:15px;object-fit:cover">` : '🎵';
+    nameEl.textContent = track.name; subEl.textContent = 'Paused';
     if (playBtn) playBtn.textContent = '▶';
   } else {
     btn.classList.remove('playing'); note.textContent = '🎵'; lbl.textContent = 'music';
+    art.innerHTML = '🎵';
     if (playBtn) playBtn.textContent = '▶';
   }
 }
