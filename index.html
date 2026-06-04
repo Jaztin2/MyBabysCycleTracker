@@ -308,6 +308,84 @@
     .si-icon { font-size: 1.3rem; flex-shrink: 0; }
     .si-text { font-size: .78rem; line-height: 1.55; }
 
+    /* ── MUSIC BTN ── */
+    .music-btn {
+      background: rgba(168,85,247,.15); border: 1px solid rgba(168,85,247,.35);
+      border-radius: 22px; padding: 6px 13px 6px 10px;
+      display: flex; align-items: center; gap: 6px;
+      cursor: pointer; transition: all .25s; flex-shrink: 0;
+    }
+    .music-btn:hover { background: rgba(168,85,247,.28); border-color: rgba(168,85,247,.6); }
+    .music-btn.playing { background: rgba(168,85,247,.25); border-color: rgba(168,85,247,.7);
+      box-shadow: 0 0 10px rgba(168,85,247,.25); }
+    .music-note { font-size: 1rem; }
+    .music-btn.playing .music-note { animation: spin-sway 2.4s ease-in-out infinite; }
+    @keyframes spin-sway { 0%,100%{transform:rotate(-12deg)} 50%{transform:rotate(12deg)} }
+    .music-label { font-size: .6rem; color: #c084fc; font-weight: 600; line-height: 1.25; max-width: 64px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* ── MUSIC PANEL ── */
+    .music-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.6); backdrop-filter: blur(4px);
+      z-index: 98;
+    }
+    .music-panel {
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 430px; max-height: 82vh;
+      background: #12122a; border-radius: 26px 26px 0 0;
+      border: 1px solid rgba(255,255,255,.08); border-bottom: none;
+      z-index: 99; display: flex; flex-direction: column;
+      animation: mp-slide-up .32s cubic-bezier(.4,0,.2,1);
+    }
+    @keyframes mp-slide-up {
+      from { transform: translateX(-50%) translateY(100%); }
+      to   { transform: translateX(-50%) translateY(0); }
+    }
+    .mp-drag { width: 40px; height: 4px; background: rgba(255,255,255,.15); border-radius: 2px; margin: 12px auto 0; flex-shrink: 0; }
+    .mp-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 20px 8px; flex-shrink: 0; }
+    .mp-title  { font-size: .9rem; font-weight: 700; }
+    .mp-close  { background: rgba(255,255,255,.07); border: none; color: var(--muted);
+      width: 28px; height: 28px; border-radius: 50%; font-size: .85rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; transition: all .2s; }
+    .mp-close:hover { background: rgba(255,255,255,.14); color: var(--text); }
+    .mp-now { display: flex; align-items: center; gap: 14px; padding: 4px 20px 14px; flex-shrink: 0; }
+    .mp-art { width: 56px; height: 56px; border-radius: 15px;
+      background: linear-gradient(135deg,#f43f5e22,#a855f730);
+      border: 1px solid rgba(168,85,247,.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem; flex-shrink: 0; }
+    .mp-art.playing { animation: pulse-art 2s ease-in-out infinite; }
+    @keyframes pulse-art { 0%,100%{box-shadow:0 0 0 0 #a855f750} 50%{box-shadow:0 0 0 12px #a855f700} }
+    .mp-info { flex: 1; min-width: 0; }
+    .mp-song { font-size: .95rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .mp-song-sub { font-size: .7rem; color: var(--muted); margin-top: 3px; }
+    .mp-controls { display: flex; align-items: center; justify-content: center; gap: 18px; padding: 0 20px 16px; flex-shrink: 0; }
+    .mp-ctrl { border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .2s; border: none; }
+    .mp-ctrl.sm { width: 42px; height: 42px; font-size: 1.05rem; background: rgba(255,255,255,.07); color: var(--text); }
+    .mp-ctrl.lg { width: 56px; height: 56px; font-size: 1.5rem;
+      background: linear-gradient(135deg,#f43f5e,#a855f7); color: white;
+      box-shadow: 0 4px 18px rgba(244,63,94,.35); }
+    .mp-ctrl:hover { opacity: .82; transform: scale(1.09); }
+    .mp-divider { height: 1px; background: rgba(255,255,255,.06); margin: 0 20px; flex-shrink: 0; }
+    .mp-list-label { font-size: .65rem; color: var(--muted); text-transform: uppercase; letter-spacing: .6px;
+      padding: 12px 20px 6px; flex-shrink: 0; font-weight: 600; }
+    .mp-list-wrap { flex: 1; overflow-y: auto; min-height: 0; padding: 0 12px 20px; }
+    .mp-list-wrap::-webkit-scrollbar { width: 3px; }
+    .mp-list-wrap::-webkit-scrollbar-track { background: transparent; }
+    .mp-list-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 2px; }
+    .mp-item { display: flex; align-items: center; gap: 12px; padding: 11px 10px;
+      border-radius: 14px; cursor: pointer; transition: all .15s; }
+    .mp-item:hover { background: rgba(255,255,255,.05); }
+    .mp-item.active { background: linear-gradient(135deg,rgba(244,63,94,.08),rgba(168,85,247,.14));
+      border: 1px solid rgba(168,85,247,.22); }
+    .mp-num  { font-size: .7rem; color: var(--muted); width: 22px; text-align: center; flex-shrink: 0; }
+    .mp-name { flex: 1; font-size: .84rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .mp-item.active .mp-name { color: #d8b4fe; font-weight: 600; }
+    .mp-del  { background: none; border: none; color: rgba(244,63,94,.3); font-size: .82rem;
+      cursor: pointer; padding: 5px 7px; border-radius: 50%; transition: all .2s; flex-shrink: 0; }
+    .mp-del:hover { color: #f43f5e; background: rgba(244,63,94,.1); }
+
     /* ── BOTTOM NAV ── */
     .bottom-nav {
       position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
@@ -359,8 +437,39 @@
     <div class="logo">💗 <span>Maia</span></div>
     <div class="subtitle">For Cybbiii 🌸</div>
   </div>
-  <div id="hdr-today" style="font-size:.72rem;color:var(--muted);text-align:right"></div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <button id="music-btn" class="music-btn" onclick="toggleMusicPanel()" title="Playlist">
+      <span class="music-note" id="music-note">🎵</span>
+      <span class="music-label" id="music-label">music</span>
+    </button>
+    <div id="hdr-today" style="font-size:.72rem;color:var(--muted);text-align:right"></div>
+  </div>
 </header>
+<audio id="bg-music" loop></audio>
+
+<div id="music-overlay" class="music-overlay" style="display:none" onclick="closeMusicPanel()"></div>
+<div id="music-panel" class="music-panel" style="display:none">
+  <div class="mp-drag"></div>
+  <div class="mp-header">
+    <div class="mp-title">🎵 Playlist</div>
+    <button class="mp-close" onclick="closeMusicPanel()">✕</button>
+  </div>
+  <div class="mp-now">
+    <div class="mp-art" id="mp-art">🎵</div>
+    <div class="mp-info">
+      <div class="mp-song" id="mp-song-name">No song selected</div>
+      <div class="mp-song-sub" id="mp-song-sub">Tap a song to play</div>
+    </div>
+  </div>
+  <div class="mp-controls">
+    <button class="mp-ctrl sm" onclick="prevTrack()">⏮</button>
+    <button class="mp-ctrl lg" id="mp-play-btn" onclick="togglePlay()">▶</button>
+    <button class="mp-ctrl sm" onclick="nextTrack()">⏭</button>
+  </div>
+  <div class="mp-divider"></div>
+  <div class="mp-list-label">Songs</div>
+  <div class="mp-list-wrap" id="mp-list"></div>
+</div>
 
 <!-- ══════════════ HOME ══════════════ -->
 <div id="page-home" class="page active">
@@ -484,8 +593,8 @@
   </div>
 
   <div class="log-card" style="margin-top:10px">
-    <div class="log-card-title">💌 Customize Phase Messages</div>
-    <div style="font-size:.76rem;color:var(--muted);margin-bottom:14px">Edit the tips and messages shown for each phase. Changes are saved to this device.</div>
+    <div class="log-card-title">💌 Add Phase Messages</div>
+    <div style="font-size:.76rem;color:var(--muted);margin-bottom:14px">Default messages are always shown. Add extra ones below per phase.</div>
     <div id="tips-editor-body"></div>
   </div>
 
@@ -578,6 +687,131 @@
 <div class="toast" id="toast"></div>
 
 <script>
+// ════════════ MUSIC ════════════
+
+let playlist        = [];
+let currentTrackIdx = -1;
+let musicOn         = false;
+
+const DEFAULT_PLAYLIST = [
+  { name: 'Padaba Taka',  file: 'Padaba Taka.mp3' },
+  { name: 'Leonora',      file: 'Leonora.mp3' },
+  { name: 'Demonyo',      file: 'Demonyo.mp3' },
+  { name: 'Be with You',  file: 'Be with You.mp3' },
+];
+
+function loadPlaylist() {
+  try {
+    const saved = localStorage.getItem('cybi-playlist');
+    playlist = saved ? JSON.parse(saved) : [...DEFAULT_PLAYLIST];
+  } catch(e) { playlist = [...DEFAULT_PLAYLIST]; }
+}
+
+function savePlaylist() {
+  localStorage.setItem('cybi-playlist', JSON.stringify(playlist.map(t => ({ name: t.name, file: t.file }))));
+}
+
+function toggleMusicPanel() {
+  const panel   = document.getElementById('music-panel');
+  const overlay = document.getElementById('music-overlay');
+  const open    = panel.style.display !== 'none';
+  panel.style.display   = open ? 'none' : 'flex';
+  overlay.style.display = open ? 'none' : 'block';
+  if (!open) renderPlaylistUI();
+}
+
+function closeMusicPanel() {
+  document.getElementById('music-panel').style.display   = 'none';
+  document.getElementById('music-overlay').style.display = 'none';
+}
+
+function renderPlaylistUI() {
+  const el = document.getElementById('mp-list');
+  if (!playlist.length) {
+    el.innerHTML = '<div style="font-size:.78rem;color:var(--muted);padding:14px 10px">No songs yet — tap + Add Songs!</div>';
+    return;
+  }
+  el.innerHTML = playlist.map((t, i) => `
+    <div class="mp-item ${i === currentTrackIdx ? 'active' : ''}" onclick="playTrack(${i})">
+      <div class="mp-num">${i === currentTrackIdx && musicOn ? '🎶' : i + 1}</div>
+      <div class="mp-name">${t.name}</div>
+      <button class="mp-del" onclick="event.stopPropagation();removeTrack(${i})" title="Remove">✕</button>
+    </div>`).join('');
+}
+
+function playTrack(idx) {
+  const audio = document.getElementById('bg-music');
+  const track = playlist[idx];
+  if (!track) return;
+  currentTrackIdx = idx;
+  audio.src = track.file;
+  audio.play().then(() => {
+    musicOn = true;
+    updateMusicUI();
+    renderPlaylistUI();
+  }).catch(() => showToast('Could not play — make sure the mp3 is in the app folder 🎵'));
+}
+
+function togglePlay() {
+  const audio = document.getElementById('bg-music');
+  if (currentTrackIdx < 0 && playlist.length) { playTrack(0); return; }
+  if (musicOn) {
+    audio.pause(); musicOn = false;
+  } else {
+    audio.play(); musicOn = true;
+  }
+  updateMusicUI();
+  renderPlaylistUI();
+}
+
+function prevTrack() {
+  if (!playlist.length) return;
+  playTrack(currentTrackIdx <= 0 ? playlist.length - 1 : currentTrackIdx - 1);
+}
+
+function nextTrack() {
+  if (!playlist.length) return;
+  playTrack(currentTrackIdx >= playlist.length - 1 ? 0 : currentTrackIdx + 1);
+}
+
+function updateMusicUI() {
+  const track   = playlist[currentTrackIdx];
+  const btn     = document.getElementById('music-btn');
+  const note    = document.getElementById('music-note');
+  const lbl     = document.getElementById('music-label');
+  const art     = document.getElementById('mp-art');
+  const nameEl  = document.getElementById('mp-song-name');
+  const subEl   = document.getElementById('mp-song-sub');
+  const playBtn = document.getElementById('mp-play-btn');
+  if (track && musicOn) {
+    btn.classList.add('playing'); note.textContent = '🎶'; lbl.textContent = track.name;
+    art.classList.add('playing'); nameEl.textContent = track.name; subEl.textContent = 'Now playing ♪';
+    if (playBtn) playBtn.textContent = '⏸';
+  } else if (track) {
+    btn.classList.remove('playing'); note.textContent = '🎵'; lbl.textContent = track.name;
+    art.classList.remove('playing'); nameEl.textContent = track.name; subEl.textContent = 'Paused';
+    if (playBtn) playBtn.textContent = '▶';
+  } else {
+    btn.classList.remove('playing'); note.textContent = '🎵'; lbl.textContent = 'music';
+    if (playBtn) playBtn.textContent = '▶';
+  }
+}
+
+function removeTrack(idx) {
+  if (idx === currentTrackIdx) {
+    const audio = document.getElementById('bg-music');
+    audio.pause(); audio.src = '';
+    musicOn = false; currentTrackIdx = -1;
+    updateMusicUI();
+  } else if (idx < currentTrackIdx) { currentTrackIdx--; }
+  playlist.splice(idx, 1);
+  savePlaylist(); renderPlaylistUI();
+}
+
+document.getElementById('bg-music').addEventListener('ended', () => {
+  if (playlist.length > 1) nextTrack();
+});
+
 // ════════════ CONSTANTS ════════════
 
 const MOODS = [
@@ -1252,9 +1486,9 @@ function clearData() {
 // ════════════ PHASE TIPS ════════════
 
 function getTips(phase) {
-  if (db.customTips && db.customTips[phase] && db.customTips[phase].length)
-    return db.customTips[phase];
-  return PHASES[phase] ? [...PHASES[phase].tips] : [...DELAYED_INFO.tips];
+  const defaults = PHASES[phase] ? [...PHASES[phase].tips] : [...DELAYED_INFO.tips];
+  const extra    = (db.customTips && db.customTips[phase]) ? db.customTips[phase] : [];
+  return [...defaults, ...extra];
 }
 
 function selectTipsPhase(phase) {
@@ -1298,46 +1532,30 @@ function renderPhaseTips(phase) {
 
 // ════════════ TIPS EDITOR ════════════
 
+
+// ════════════ TIPS EDITOR ════════════
+
 function selectEditorPhase(phase) {
   editorPhase = phase;
   renderTipsEditor();
 }
 
-function addEditorTipRow() {
-  const list = document.getElementById('tip-edit-list');
-  const div = document.createElement('div');
-  div.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;align-items:flex-start';
-  div.innerHTML = `
-    <textarea class="tip-edit-input" placeholder="Type your message here..." rows="2"
-      style="flex:1;background:var(--card2);border:1px solid var(--border);border-radius:10px;
-      padding:10px 12px;color:var(--text);font-size:.82rem;outline:none;font-family:inherit;
-      resize:none;line-height:1.5"></textarea>
-    <button onclick="this.parentElement.remove()" style="
-      background:transparent;border:1px solid #f43f5e30;color:#f43f5e80;margin-top:2px;
-      border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:1.1rem;
-      display:flex;align-items:center;justify-content:center;flex-shrink:0">×</button>`;
-  list.appendChild(div);
-  div.querySelector('textarea').focus();
+function saveCustomTip() {
+  const inp = document.getElementById('tip-new-input');
+  const val = inp.value.trim();
+  if (!val) return;
+  if (!db.customTips) db.customTips = {};
+  if (!db.customTips[editorPhase]) db.customTips[editorPhase] = [];
+  db.customTips[editorPhase].push(val);
+  inp.value = '';
+  save(); renderTipsEditor();
+  showToast('Message added! 💾');
 }
 
-function savePhaseTips() {
-  const inputs = document.querySelectorAll('.tip-edit-input');
-  const tips = [...inputs].map(i => i.value.trim()).filter(Boolean);
-  if (!tips.length) { showToast('Add at least one message!'); return; }
-  if (!db.customTips) db.customTips = {};
-  db.customTips[editorPhase] = tips;
-  save();
-  renderTipsEditor();
-  showToast('Messages saved! 💾');
-}
-
-function resetPhaseTips() {
-  if (!confirm('Reset this phase back to default messages?')) return;
-  if (!db.customTips) db.customTips = {};
-  db.customTips[editorPhase] = [];
-  save();
-  renderTipsEditor();
-  showToast('Reset to defaults ✓');
+function deleteCustomTip(phase, idx) {
+  if (!db.customTips || !db.customTips[phase]) return;
+  db.customTips[phase].splice(idx, 1);
+  save(); renderTipsEditor();
 }
 
 function renderTipsEditor() {
@@ -1349,52 +1567,40 @@ function renderTipsEditor() {
     { key:'ovulation',  label:'🌟 Ovulation' },
     { key:'luteal',     label:'🌙 Luteal' },
   ];
-  const info = PHASES[editorPhase] || DELAYED_INFO;
-  const tips = getTips(editorPhase);
-
   const tabsHtml = tabs.map(t => {
     const active = editorPhase === t.key;
     const c = PHASES[t.key].color;
     return `<button onclick="selectEditorPhase('${t.key}')" style="
-      flex:1;padding:7px 2px;border-radius:10px;font-size:.65rem;font-weight:${active?'700':'400'};
-      cursor:pointer;transition:all .2s;line-height:1.3;
-      border:1px solid ${active ? c : 'var(--border)'};
-      background:${active ? c+'22' : 'var(--card2)'};
-      color:${active ? c : 'var(--muted)'}
+      flex:1;padding:7px 2px;border-radius:10px;font-size:.65rem;
+      font-weight:${active?'700':'400'};cursor:pointer;transition:all .2s;line-height:1.3;
+      border:1px solid ${active?c:'var(--border)'};
+      background:${active?c+'22':'var(--card2)'};
+      color:${active?c:'var(--muted)'}
     ">${t.label}</button>`;
   }).join('');
 
-  const rowsHtml = tips.map(t => `
-    <div style="display:flex;gap:8px;margin-bottom:8px;align-items:flex-start">
-      <textarea class="tip-edit-input" rows="2"
-        style="flex:1;background:var(--card2);border:1px solid var(--border);border-radius:10px;
-        padding:10px 12px;color:var(--text);font-size:.82rem;outline:none;font-family:inherit;
-        resize:none;line-height:1.5">${t.replace(/</g,'&lt;')}</textarea>
-      <button onclick="this.parentElement.remove()" style="
-        background:transparent;border:1px solid #f43f5e30;color:#f43f5e80;margin-top:2px;
-        border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:1.1rem;
-        display:flex;align-items:center;justify-content:center;flex-shrink:0">×</button>
-    </div>`).join('');
+  const extras = (db.customTips && db.customTips[editorPhase]) ? db.customTips[editorPhase] : [];
+  const extrasHtml = extras.length ? extras.map((t, i) => `
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)">
+      <span style="flex:1;font-size:.8rem;color:var(--text);line-height:1.5">${t}</span>
+      <button onclick="deleteCustomTip('${editorPhase}',${i})" style="
+        background:none;border:none;color:#f43f5e60;font-size:.9rem;cursor:pointer;
+        padding:4px 6px;border-radius:50%;transition:all .2s;flex-shrink:0"
+        onmouseover="this.style.color='#f43f5e'" onmouseout="this.style.color='#f43f5e60'">✕</button>
+    </div>`).join('') : `<div style="font-size:.76rem;color:var(--muted);padding:8px 0">No extra messages yet.</div>`;
 
   el.innerHTML = `
     <div style="display:flex;gap:6px;margin-bottom:14px">${tabsHtml}</div>
-    <div style="font-size:.8rem;color:${info.color};font-weight:600;margin-bottom:10px">${info.emoji} ${info.name} messages</div>
-    <div id="tip-edit-list">${rowsHtml}</div>
-    <button onclick="addEditorTipRow()" style="
-      width:100%;padding:10px;background:var(--card2);border:1px dashed var(--border);
-      border-radius:10px;color:var(--muted);font-size:.8rem;cursor:pointer;margin:4px 0 14px;font-family:inherit">
-      + Add message
-    </button>
-    <div style="display:flex;gap:8px">
-      <button onclick="resetPhaseTips()" style="
-        flex:1;padding:11px;background:transparent;border:1px solid var(--border);
-        border-radius:10px;color:var(--muted);font-size:.76rem;cursor:pointer;font-family:inherit">
-        Reset defaults
-      </button>
-      <button onclick="savePhaseTips()" style="
-        flex:2;padding:11px;background:linear-gradient(135deg,#f43f5e,#a855f7);
-        border:none;border-radius:10px;color:white;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit">
-        💾 Save Messages
+    ${extrasHtml}
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <input id="tip-new-input" type="text" placeholder="Add a message..."
+        style="flex:1;background:var(--card2);border:1px solid var(--border);border-radius:10px;
+        padding:9px 12px;color:var(--text);font-size:.8rem;outline:none;font-family:inherit"
+        onkeydown="if(event.key==='Enter')saveCustomTip()">
+      <button onclick="saveCustomTip()" style="
+        padding:9px 16px;background:linear-gradient(135deg,#f43f5e,#a855f7);border:none;
+        border-radius:10px;color:white;font-size:.8rem;font-weight:700;cursor:pointer;font-family:inherit">
+        Add
       </button>
     </div>`;
 }
@@ -1541,6 +1747,7 @@ function renderAll() {
 
 function init() {
   load();
+  loadPlaylist();
 
   if (!db.bootstrapped) {
     db.cycles      = [{ start:'2026-05-07', end:'2026-05-11' }];
