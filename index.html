@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Maia – Cycle Tracker for Cybbiii</title>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -428,6 +430,12 @@
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     .empty-state { font-size: .84rem; color: var(--muted); padding: 8px 0; }
+
+    /* ── SYNC DOT ── */
+    .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; flex-shrink: 0; transition: background .3s; }
+    .sync-dot.syncing { background: #f59e0b; animation: pulse-dot 1s ease-in-out infinite; }
+    .sync-dot.error   { background: #f43f5e; }
+    @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.3} }
   </style>
 </head>
 <body>
@@ -438,6 +446,7 @@
     <div class="subtitle">For Cybbiii 🌸</div>
   </div>
   <div style="display:flex;align-items:center;gap:10px">
+    <div id="sync-dot" class="sync-dot" title="Synced"></div>
     <button id="music-btn" class="music-btn" onclick="toggleMusicPanel()" title="Playlist">
       <span class="music-note" id="music-note">🎵</span>
       <span class="music-label" id="music-label">music</span>
@@ -689,6 +698,25 @@
 <div class="toast" id="toast"></div>
 
 <script>
+// ════════════ FIREBASE ════════════
+firebase.initializeApp({
+  apiKey: "AIzaSyBKir43vWG_srF20EkRIez5AnxmWgVweqA",
+  authDomain: "maia-cycle-tracker.firebaseapp.com",
+  databaseURL: "https://maia-cycle-tracker-default-rtdb.firebaseio.com",
+  projectId: "maia-cycle-tracker",
+  storageBucket: "maia-cycle-tracker.firebasestorage.app",
+  messagingSenderId: "932262805781",
+  appId: "1:932262805781:web:72987821b5fae1239ca91c"
+});
+const fbRef = firebase.database().ref('cybi-data');
+
+function setSyncDot(state) {
+  const dot = document.getElementById('sync-dot');
+  if (!dot) return;
+  dot.className = 'sync-dot' + (state === 'syncing' ? ' syncing' : state === 'error' ? ' error' : '');
+  dot.title = state === 'syncing' ? 'Syncing…' : state === 'error' ? 'Sync error — check connection' : 'Synced ✓';
+}
+
 // ════════════ MUSIC ════════════
 
 let playlist        = [];
@@ -951,7 +979,12 @@ function load() {
 }
 
 function save() {
+  db._ts = Date.now();
   localStorage.setItem('cybi-v1', JSON.stringify(db));
+  setSyncDot('syncing');
+  fbRef.set(JSON.parse(JSON.stringify(db)))
+    .then(() => setSyncDot('synced'))
+    .catch(() => setSyncDot('error'));
 }
 
 // ════════════ CYCLE LOGIC ════════════
@@ -1782,6 +1815,24 @@ function renderAll() {
   if (document.getElementById('page-insights').classList.contains('active')) renderInsights();
 }
 
+// ════════════ FIREBASE SYNC ════════════
+
+function initFirebaseSync() {
+  fbRef.on('value', snapshot => {
+    const remote = snapshot.val();
+    if (!remote) return;
+    if (remote._ts && remote._ts === db._ts) return;
+    db = { ...db, ...remote, bootstrapped: true };
+    localStorage.setItem('cybi-v1', JSON.stringify(db));
+    document.getElementById('inp-cycle-len').value    = db.cycleLength;
+    document.getElementById('inp-period-len').value   = db.periodLength;
+    document.getElementById('toggle-delayed').checked = db.delayed;
+    document.getElementById('delayed-panel').style.display = db.delayed ? 'block' : 'none';
+    renderAll(); renderRecentLogs(); renderTipsEditor();
+    setSyncDot('synced');
+  });
+}
+
 // ════════════ INIT ════════════
 
 function init() {
@@ -1807,6 +1858,7 @@ function init() {
   renderRecentLogs();
   renderTipsEditor();
   renderHome();
+  initFirebaseSync();
 }
 
 init();
