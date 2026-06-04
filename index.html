@@ -626,6 +626,8 @@
 
     <div style="margin-top:14px;display:flex;flex-direction:column;gap:8px">
       <button class="btn btn-secondary" onclick="exportData()">📤 Export Data</button>
+      <button class="btn btn-secondary" onclick="document.getElementById('import-file-input').click()">📥 Import Data</button>
+      <input type="file" id="import-file-input" accept=".json" style="display:none" onchange="importData(this)">
       <button class="btn btn-danger"    onclick="clearData()">🗑 Clear All Data</button>
     </div>
   </div>
@@ -1469,6 +1471,28 @@ function exportData() {
   const a = document.createElement('a');
   a.href = URL.createObjectURL(b); a.download = 'cybi-data.json'; a.click();
   showToast('Exported! 📤');
+}
+
+function importData(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (!imported.cycles || !imported.moods) { showToast('Invalid backup file 😕'); return; }
+      db = { ...db, ...imported, bootstrapped: true };
+      save();
+      document.getElementById('inp-cycle-len').value = db.cycleLength;
+      document.getElementById('inp-period-len').value = db.periodLength;
+      document.getElementById('toggle-delayed').checked = db.delayed;
+      document.getElementById('delayed-panel').style.display = db.delayed ? 'block' : 'none';
+      renderAll(); renderRecentLogs(); renderTipsEditor();
+      showToast('Data imported! 💾 Welcome back Cybbiii 💕');
+    } catch(err) { showToast('Could not read file 😕'); }
+    input.value = '';
+  };
+  reader.readAsText(file);
 }
 
 function clearData() {
