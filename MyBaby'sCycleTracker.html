@@ -1591,12 +1591,6 @@ function hideDefaultTip(phase, idx) {
   save(); renderTipsEditor();
 }
 
-function restoreDefaultTips(phase) {
-  if (db.hiddenDefaultTips) db.hiddenDefaultTips[phase] = [];
-  save(); renderTipsEditor();
-  showToast('Default messages restored 💕');
-}
-
 function renderTipsEditor() {
   const el = document.getElementById('tips-editor-body');
   if (!el) return;
@@ -1622,34 +1616,21 @@ function renderTipsEditor() {
   const hidden   = (db.hiddenDefaultTips && db.hiddenDefaultTips[editorPhase]) || [];
   const extras   = (db.customTips && db.customTips[editorPhase]) || [];
 
-  const delBtnStyle = `background:none;border:none;color:#f43f5e60;font-size:.9rem;cursor:pointer;padding:4px 6px;border-radius:50%;transition:all .2s;flex-shrink:0`;
-
-  const defaultsHtml = defaults.map((t, i) => {
-    const isHidden = hidden.includes(i);
-    return `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);opacity:${isHidden?.4:1}">
-      <span style="flex:1;font-size:.8rem;color:${isHidden?'var(--muted)':'var(--text)'};line-height:1.5;text-decoration:${isHidden?'line-through':'none'}">${t}</span>
-      ${isHidden
-        ? `<button onclick="restoreDefaultTip('${editorPhase}',${i})" style="${delBtnStyle};color:#a855f760" onmouseover="this.style.color='#a855f7'" onmouseout="this.style.color='#a855f760'" title="Restore">↩</button>`
-        : `<button onclick="hideDefaultTip('${editorPhase}',${i})" style="${delBtnStyle}" onmouseover="this.style.color='#f43f5e'" onmouseout="this.style.color='#f43f5e60'" title="Hide">✕</button>`
-      }
-    </div>`;
-  }).join('');
-
-  const extrasHtml = extras.map((t, i) => `
+  const delBtn = `background:none;border:none;color:#f43f5e60;font-size:.9rem;cursor:pointer;padding:4px 6px;border-radius:50%;transition:all .2s;flex-shrink:0`;
+  const row    = (text, onclick) => `
     <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)">
-      <span style="flex:1;font-size:.8rem;color:var(--text);line-height:1.5">${t}</span>
-      <button onclick="deleteCustomTip('${editorPhase}',${i})" style="${delBtnStyle}" onmouseover="this.style.color='#f43f5e'" onmouseout="this.style.color='#f43f5e60'" title="Delete">✕</button>
-    </div>`).join('');
+      <span style="flex:1;font-size:.8rem;color:var(--text);line-height:1.5">${text}</span>
+      <button onclick="${onclick}" style="${delBtn}" onmouseover="this.style.color='#f43f5e'" onmouseout="this.style.color='#f43f5e60'">✕</button>
+    </div>`;
+
+  const allRows = [
+    ...defaults.map((t, i) => hidden.includes(i) ? '' : row(t, `hideDefaultTip('${editorPhase}',${i})`)),
+    ...extras.map((t, i) => row(t, `deleteCustomTip('${editorPhase}',${i})`)),
+  ].join('');
 
   el.innerHTML = `
     <div style="display:flex;gap:6px;margin-bottom:14px">${tabsHtml}</div>
-    <div style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between">
-      <span>Default Messages</span>
-      ${hidden.length ? `<button onclick="restoreDefaultTips('${editorPhase}')" style="background:none;border:none;color:#a855f7;font-size:.68rem;cursor:pointer;font-family:inherit">Restore all</button>` : ''}
-    </div>
-    ${defaultsHtml}
-    <div style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin:12px 0 6px">Your Messages</div>
-    ${extrasHtml || '<div style="font-size:.76rem;color:var(--muted);padding:4px 0 8px">No custom messages yet.</div>'}
+    ${allRows || '<div style="font-size:.76rem;color:var(--muted);padding:8px 0">No messages yet.</div>'}
     <div style="display:flex;gap:8px;margin-top:12px">
       <input id="tip-new-input" type="text" placeholder="Add a message..."
         style="flex:1;background:var(--card2);border:1px solid var(--border);border-radius:10px;
@@ -1661,12 +1642,6 @@ function renderTipsEditor() {
         Add
       </button>
     </div>`;
-}
-
-function restoreDefaultTip(phase, idx) {
-  if (!db.hiddenDefaultTips || !db.hiddenDefaultTips[phase]) return;
-  db.hiddenDefaultTips[phase] = db.hiddenDefaultTips[phase].filter(i => i !== idx);
-  save(); renderTipsEditor();
 }
 
 // ════════════ INSIGHTS ════════════
