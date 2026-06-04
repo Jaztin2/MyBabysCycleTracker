@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cybi – Cycle Tracker</title>
+  <title>Maia – Cycle Tracker for Cybbiii</title>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -356,8 +356,8 @@
 
 <header>
   <div>
-    <div class="logo">💗 <span>Cybi</span></div>
-    <div class="subtitle">Your personal cycle companion</div>
+    <div class="logo">💗 <span>Maia</span></div>
+    <div class="subtitle">For Cybbiii 🌸</div>
   </div>
   <div id="hdr-today" style="font-size:.72rem;color:var(--muted);text-align:right"></div>
 </header>
@@ -367,7 +367,7 @@
 
   <div id="phase-banner" class="phase-banner none" style="margin-top:14px">
     <span class="phase-emoji" id="phase-emoji">🌙</span>
-    <div class="phase-name" id="phase-name">Welcome to Cybi</div>
+    <div class="phase-name" id="phase-name">Welcome to Maia</div>
     <div class="phase-sub"  id="phase-sub">Log your period to get started</div>
     <div class="phase-desc" id="phase-desc">Track your cycle, log moods & symptoms, and get personalized insights.</div>
     <div id="period-countdown" style="display:none"><div class="countdown-badge">🩸 <span id="countdown-text"></span></div></div>
@@ -504,7 +504,7 @@
 
     <div id="delayed-panel" style="display:none">
       <div class="delayed-panel">
-        <p>Your cycle is running longer than expected — totally normal! When ovulation happens, log it below and Cybi will auto-update your cycle length and predict your next period.</p>
+        <p>Your cycle is running longer than expected — totally normal! When ovulation happens, log it below and Maia will auto-update your cycle length and predict your next period.</p>
         <button class="btn btn-ovulation" onclick="logOvulation()">🌟 Log Ovulation Today</button>
       </div>
     </div>
@@ -699,6 +699,7 @@ function getCycleDay(forDate) {
   const start = new Date(last.start); start.setHours(0,0,0,0);
   const diff = daysBetween(start, ref) + 1;
   if (diff < 1) return null;
+  if (!forDate && diff > db.cycleLength) return diff;
   if (db.delayed && !forDate) return diff;
   return ((diff - 1) % db.cycleLength) + 1;
 }
@@ -711,7 +712,7 @@ function getPhaseFromDay(cycleDay) {
   if (cycleDay <= pl)      return 'menstrual';
   if (cycleDay <= follEnd) return 'follicular';
   if (cycleDay <= ovEnd)   return 'ovulation';
-  if (db.delayed && cycleDay > cl) return 'follicular';
+  if (cycleDay > cl) return 'follicular';
   return 'luteal';
 }
 
@@ -733,14 +734,14 @@ function getPhaseForDate(dateStr) {
 function daysToNextPeriod() {
   if (db.delayed) return null;
   const cd = getCycleDay();
-  if (!cd) return null;
+  if (!cd || cd > db.cycleLength) return null;
   return db.cycleLength - cd + 1;
 }
 
 function daysToOvulation() {
   if (db.delayed) return null;
   const cd = getCycleDay();
-  if (!cd) return null;
+  if (!cd || cd > db.cycleLength) return null;
   const ovDay = Math.round(db.cycleLength * 0.5);
   const diff  = ovDay - cd;
   return diff <= 0 ? db.cycleLength + diff : diff;
@@ -856,19 +857,20 @@ function renderHome() {
   const dtop  = daysToNextPeriod();
   const dtov  = daysToOvulation();
 
-  const banner    = document.getElementById('phase-banner');
-  const isDelayed = db.delayed;
+  const banner     = document.getElementById('phase-banner');
+  const isDelayed  = db.delayed;
+  const isAutoLate = !isDelayed && cd && cd > db.cycleLength;
 
-  if (isDelayed && cd) {
+  if ((isDelayed || isAutoLate) && cd) {
     banner.className = 'phase-banner delayed';
     document.getElementById('phase-emoji').textContent = DELAYED_INFO.emoji;
     document.getElementById('phase-name').textContent  = DELAYED_INFO.name;
-    document.getElementById('phase-sub').textContent   = `Cycle Day ${cd} · Waiting for ovulation`;
+    document.getElementById('phase-sub').textContent   = isDelayed ? `Cycle Day ${cd} · Waiting for ovulation` : `Cycle Day ${cd} · Period may be late`;
     document.getElementById('phase-desc').textContent  = DELAYED_INFO.desc;
     document.getElementById('period-countdown').style.display = 'none';
     document.getElementById('delayed-chip').style.display     = 'block';
-    document.getElementById('late-hint').style.display        = 'none';
-    document.getElementById('ov-action-area').style.display   = 'block';
+    document.getElementById('late-hint').style.display        = isAutoLate ? 'block' : 'none';
+    document.getElementById('ov-action-area').style.display   = isDelayed ? 'block' : 'none';
   } else if (phase) {
     const p = PHASES[phase];
     banner.className = 'phase-banner ' + p.cls;
@@ -888,9 +890,9 @@ function renderHome() {
   } else {
     banner.className = 'phase-banner none';
     document.getElementById('phase-emoji').textContent = '💗';
-    document.getElementById('phase-name').textContent  = 'Hey there! 💕';
-    document.getElementById('phase-sub').textContent   = 'Tap + below to log your period';
-    document.getElementById('phase-desc').textContent  = 'Track your cycle, log moods & symptoms, and get personalized insights just for her.';
+    document.getElementById('phase-name').textContent  = 'Hi Cybbiii! 💕';
+    document.getElementById('phase-sub').textContent   = "I'm Maia, your personal period tracker";
+    document.getElementById('phase-desc').textContent  = 'Tap + below to log your period and I\'ll track your cycle, moods & symptoms, and give you personalized insights!';
     document.getElementById('period-countdown').style.display = 'none';
     document.getElementById('delayed-chip').style.display     = 'none';
     document.getElementById('late-hint').style.display        = 'none';
@@ -903,7 +905,7 @@ function renderHome() {
   const soEl  = document.getElementById('stat-ovulation');
   sdEl.textContent = cd || '—';
   sdEl.className   = 'stat-value';
-  if (isDelayed) {
+  if (isDelayed || isAutoLate) {
     spEl.textContent = '?'; spEl.className = 'stat-value delayed';
     document.getElementById('stat-period-label').textContent = 'Days to Period';
     soEl.textContent = '?'; soEl.className = 'stat-value delayed';
@@ -1079,11 +1081,13 @@ function savePeriod() {
   if (!s) { showToast('Select a start date'); return; }
   db.cycles = db.cycles.filter(c => c.start !== s);
   db.cycles.push({ start: s, end: e || null });
-  db.delayed = false; db.ovulationDate = null;
-  document.getElementById('toggle-delayed').checked = false;
-  document.getElementById('delayed-panel').style.display = 'none';
+  db.ovulationDate = null;
+  const todayDiff = daysBetween(s, toDateStr(new Date())) + 1;
+  db.delayed = todayDiff > db.cycleLength;
+  document.getElementById('toggle-delayed').checked = db.delayed;
+  document.getElementById('delayed-panel').style.display = db.delayed ? 'block' : 'none';
   save(); renderAll();
-  showToast('Period saved! 🩸');
+  showToast(db.delayed ? 'Period saved! Looks like your cycle may be delayed ⏳' : 'Period saved! 🩸');
 }
 
 function saveMoodLog() {
