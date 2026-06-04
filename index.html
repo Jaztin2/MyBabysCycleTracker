@@ -610,31 +610,73 @@ const SYMPTOMS = [
 
 const PHASES = {
   menstrual: {
-    name:'Menstrual Phase', shortName:'Menstrual', emoji:'🩸', color:'#f43f5e', cls:'menstrual',
+    name:'Menstrual Phase', shortName:'Period', emoji:'🩸', color:'#f43f5e', cls:'menstrual',
     desc:'Your period is here. Rest, stay warm, and be gentle with yourself.',
-    tips:['🛏 Rest as much as you can — your body is working hard.','🍵 Warm herbal teas (ginger, chamomile) can ease cramps.','🚶 Light walks can help reduce cramping.','💊 Magnesium-rich foods help with muscle relaxation.']
+    tips:[
+      '💗 Rest as much as you can baby — your body is working so hard right now.',
+      '🫂 I wish I was there to hug you through every single cramp.',
+      '🍓 Strawberries and bananas can help ease bloating and keep your energy up.',
+      '🍵 Warm drinks like ginger tea or hot choco can really soothe the pain.',
+      '🛏 It\'s totally okay to just stay in bed today — you deserve all the rest.',
+      '💝 I hope I can cook something warm and comforting for you right now.',
+      '🍉 Watermelon is great too — it helps with hydration and feels refreshing.',
+      '🥺 You\'re so strong for going through this every month, I\'m so proud of you.',
+    ]
   },
   follicular: {
     name:'Follicular Phase', shortName:'Follicular', emoji:'🌸', color:'#f97316', cls:'follicular',
     desc:'Estrogen is rising! Energy, mood, and motivation are climbing.',
-    tips:['🏋 Great time for intense workouts — energy is rising!','🧠 Start new projects and tackle challenging tasks.','🥗 Focus on iron-rich foods to rebuild after menstruation.','💬 Social energy is high — connect with loved ones.']
+    tips:[
+      '🌸 You\'re glowing up, Cybbiii — your energy is rising and you\'re thriving!',
+      '🍉 Snack on watermelon, mango, or oranges — amazing for your skin and energy.',
+      '💪 This is your moment! Great time to start something new or work out.',
+      '😄 Your confidence is climbing — own it and shine, baby!',
+      '🍓 Berries are perfect right now — antioxidants for that natural glow ✨',
+      '🍍 Pineapple is also great — refreshing and full of good stuff for your body.',
+      '🧠 Your focus is sharp this phase — tackle anything you\'ve been putting off!',
+    ]
   },
   ovulation: {
     name:'Ovulation Phase', shortName:'Ovulation', emoji:'🌟', color:'#a855f7', cls:'ovulation',
     desc:'Peak fertility window! You may feel your most confident and vibrant.',
-    tips:['✨ You are at your peak — confidence and clarity are high.','💪 Best time for high-intensity exercise.','❤️ Libido may be naturally higher this week.','🗣 Great time for important conversations and social events.']
+    tips:[
+      '✨ You\'re literally at your peak right now, Cybbiii — you are so beautiful.',
+      '🍍 Pineapple and papaya are amazing for your body during this phase.',
+      '💃 Your energy and confidence are at their highest — have fun with it!',
+      '❤️ You might feel extra romantic this week — embrace it 🥰',
+      '🏋️ Best time to push yourself with exercise or try something active.',
+      '🍑 Peaches and mangoes are perfect snacks right now — sweet just like you.',
+      '🌟 You\'re glowing and everyone can feel it — this is your week!',
+    ]
   },
   luteal: {
     name:'Luteal Phase', shortName:'Luteal', emoji:'🌙', color:'#f59e0b', cls:'luteal',
     desc:'Progesterone rises then drops. PMS symptoms may appear. Time to nurture yourself.',
-    tips:['🧘 Yoga and stretching feel great this phase.','🍫 Dark chocolate can help with cravings and mood.','📓 Journaling and reflection come naturally now.','💆 Self-care and lower-intensity activities are ideal.']
+    tips:[
+      '🌙 It\'s okay if you feel a little off — your hormones are doing so much right now.',
+      '🍫 Dark chocolate and bananas really help with mood dips — treat yourself!',
+      '🫂 I wish I was there to hold you and tell you everything\'s going to be okay.',
+      '🍑 Peaches, mangoes, and avocados can help with PMS symptoms.',
+      '💆 Be extra gentle with yourself this week — you deserve all the care in the world.',
+      '🍳 I hope I can cook your favorite food for you, baby 💕',
+      '🍌 Bananas help with the mood swings and cramps — eat them guilt free!',
+      '💝 Even on your hardest days, you are still my favorite person.',
+    ]
   }
 };
 
 const DELAYED_INFO = {
   name:'Extended Follicular', shortName:'Delayed', emoji:'⏳', color:'#f59e0b', cls:'delayed',
   desc:"Your cycle is running longer than expected — totally normal for irregular cycles! Ovulation hasn't happened yet. Your period will arrive about 14 days after ovulation.",
-  tips:['🌿 Support your body with leafy greens and healthy fats.','😴 Extra rest supports hormone balance.','🧘 Light movement like yoga or walking is great.','💧 Stay hydrated — it helps all hormone functions.','📅 Irregular cycles are common — every body is unique.']
+  tips:[
+    '⏳ Irregular cycles happen — your body is unique and that\'s completely okay, Cybbiii.',
+    '🍌 Bananas and avocados support hormone balance naturally.',
+    '😴 Extra rest really helps your hormones find their rhythm — sleep in if you need to!',
+    '🧘 Light movement like walks or stretching feels really good right now.',
+    '💧 Stay hydrated — water helps everything in your body work better.',
+    '🍓 Snack on fruits like strawberries and oranges to keep your energy up.',
+    '💗 I\'m here for you no matter how long it takes, always and forever.',
+  ]
 };
 
 // ════════════ STATE ════════════
@@ -646,10 +688,11 @@ let db = {
   bootstrapped: false
 };
 
-let calViewDate    = new Date();
-let homeMoodSel    = null;
-let logMoodSel     = null;
-let logSymptomsSel = new Set();
+let calViewDate      = new Date();
+let homeMoodSel      = null;
+let logMoodSel       = null;
+let logSymptomsSel   = new Set();
+let selectedTipsPhase = null;
 
 // ════════════ STORAGE ════════════
 
@@ -1197,6 +1240,45 @@ function clearData() {
   showToast('All data cleared');
 }
 
+// ════════════ PHASE TIPS ════════════
+
+function selectTipsPhase(phase) {
+  selectedTipsPhase = phase;
+  renderPhaseTips(phase);
+}
+
+function renderPhaseTips(phase) {
+  const tipsEl = document.getElementById('ins-tips');
+  if (!tipsEl) return;
+  const tabs = [
+    { key:'menstrual',  label:'🩸 Period' },
+    { key:'follicular', label:'🌸 Follicular' },
+    { key:'ovulation',  label:'🌟 Ovulation' },
+    { key:'luteal',     label:'🌙 Luteal' },
+  ];
+  const info = PHASES[phase] || DELAYED_INFO;
+  const tabsHtml = tabs.map(t => {
+    const active = phase === t.key;
+    const c = PHASES[t.key].color;
+    return `<button onclick="selectTipsPhase('${t.key}')" style="
+      flex:1;padding:7px 2px;border-radius:10px;font-size:.65rem;font-weight:${active?'700':'400'};
+      cursor:pointer;transition:all .2s;line-height:1.3;
+      border:1px solid ${active ? c : 'var(--border)'};
+      background:${active ? c+'22' : 'var(--card2)'};
+      color:${active ? c : 'var(--muted)'}
+    ">${t.label}</button>`;
+  }).join('');
+
+  tipsEl.innerHTML = `
+    <div style="display:flex;gap:6px;margin-bottom:14px">${tabsHtml}</div>
+    <div class="tip-box" style="background:${info.color}12;border:1px solid ${info.color}30;color:${info.color};margin-bottom:8px">
+      ${info.emoji} <strong>${info.name}</strong>
+    </div>
+    ${info.tips.map(t => `
+      <div style="font-size:.82rem;padding:9px 0;border-bottom:1px solid var(--border);color:var(--text);line-height:1.55">${t}</div>
+    `).join('')}`;
+}
+
 // ════════════ INSIGHTS ════════════
 
 function renderInsights() {
@@ -1244,20 +1326,12 @@ function renderInsights() {
     overviewEl.innerHTML = '<div class="empty-state">Log your period to see insights.</div>';
   }
 
-  // Phase tips
-  const tipsEl  = document.getElementById('ins-tips');
-  const cd2     = getCycleDay();
-  const phase2  = cd2 ? getPhaseFromDay(cd2) : null;
-  const tipInfo = db.delayed ? DELAYED_INFO : (phase2 ? PHASES[phase2] : null);
-  if (tipInfo) {
-    tipsEl.innerHTML = `
-      <div class="tip-box" style="background:${tipInfo.color}12;border:1px solid ${tipInfo.color}30;color:${tipInfo.color}">
-        ${tipInfo.emoji} <strong>${tipInfo.name}</strong>
-      </div>
-      ${tipInfo.tips.map(t=>`<div style="font-size:.82rem;padding:6px 0;border-bottom:1px solid var(--border);color:var(--text)">${t}</div>`).join('')}`;
-  } else {
-    tipsEl.innerHTML = '<div class="empty-state">Set your period start to see phase tips.</div>';
-  }
+  // Phase tips — tab selector
+  const cd2    = getCycleDay();
+  const phase2 = cd2 ? getPhaseFromDay(cd2) : null;
+  const autoPhase = db.delayed ? 'follicular' : (phase2 || 'menstrual');
+  if (!selectedTipsPhase) selectedTipsPhase = autoPhase;
+  renderPhaseTips(selectedTipsPhase);
 
   // Mood & Symptoms by phase
   const phaseEl = document.getElementById('ins-phase-moods');
