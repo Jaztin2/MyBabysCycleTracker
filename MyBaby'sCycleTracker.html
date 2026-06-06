@@ -475,17 +475,60 @@
     .pain-labels { display: flex; justify-content: space-between; font-size: .63rem; color: var(--muted); margin-top: 4px; }
     .pain-val { font-size: .82rem; font-weight: 700; color: #f43f5e; text-align: center; margin-top: 6px; }
 
-    /* ── LOVE NOTE ── */
-    .love-note-card {
-      margin: 0 14px 12px;
+    /* ── LOVE NOTE BUTTON ── */
+    .love-note-btn {
+      width: 100%; display: flex; align-items: center; gap: 12px;
       background: linear-gradient(135deg, #f43f5e0d, #a855f718);
-      border: 1px solid #f43f5e25; border-radius: 18px; padding: 16px;
-      display: flex; align-items: flex-start; gap: 10px;
+      border: 1px solid #f43f5e30; border-radius: 18px; padding: 14px 16px;
+      cursor: pointer; transition: all .2s; font-family: inherit; text-align: left;
     }
-    .ln-icon { font-size: 1.5rem; flex-shrink: 0; }
-    .ln-body { flex: 1; }
-    .ln-label { font-size: .63rem; color: #f87171; text-transform: uppercase; letter-spacing: .6px; font-weight: 700; margin-bottom: 5px; }
-    .ln-text { font-size: .82rem; line-height: 1.6; color: var(--text); }
+    .love-note-btn:hover { border-color: #f43f5e60; background: linear-gradient(135deg,#f43f5e18,#a855f725); }
+    .ln-btn-icon  { font-size: 1.6rem; flex-shrink: 0; animation: heartbeat 2s ease-in-out infinite; }
+    @keyframes heartbeat { 0%,100%{transform:scale(1)} 50%{transform:scale(1.12)} }
+    .ln-btn-body  { flex: 1; }
+    .ln-btn-label { font-size: .82rem; font-weight: 700; color: var(--text); }
+    .ln-btn-hint  { font-size: .68rem; color: #f87171; margin-top: 2px; }
+    .ln-btn-arrow { font-size: 1.4rem; color: #f43f5e60; flex-shrink: 0; }
+
+    /* ── LOVE NOTE MODAL ── */
+    .love-note-modal {
+      position: fixed; inset: 0; z-index: 99;
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+    }
+    .lnm-card {
+      width: 100%; max-width: 340px;
+      background: linear-gradient(160deg, #1e0a1e 0%, #150d2a 100%);
+      border-radius: 22px;
+      border: 1px solid rgba(244,63,94,.35);
+      box-shadow: 0 28px 64px rgba(0,0,0,.7), 0 0 0 1px rgba(168,85,247,.12), inset 0 1px 0 rgba(255,255,255,.05);
+      padding: 32px 26px 26px;
+      position: relative; text-align: center;
+      animation: letter-pop .3s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes letter-pop {
+      from { transform: scale(.82) translateY(10px); opacity: 0; }
+      to   { transform: scale(1) translateY(0); opacity: 1; }
+    }
+    .lnm-close {
+      position: absolute; top: 12px; right: 12px;
+      background: rgba(255,255,255,.07); border: none; color: var(--muted);
+      width: 28px; height: 28px; border-radius: 50%; font-size: .85rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; transition: all .2s;
+    }
+    .lnm-close:hover { background: rgba(255,255,255,.14); color: var(--text); }
+    .lnm-seal  { font-size: 2.6rem; margin-bottom: 6px; animation: heartbeat 1.8s ease-in-out infinite; display: block; }
+    .lnm-label { font-size: .62rem; color: #f87171; text-transform: uppercase; letter-spacing: .8px; font-weight: 700; margin-bottom: 18px; }
+    .lnm-divider {
+      height: 1px; margin: 0 0 18px;
+      background: linear-gradient(90deg, transparent, rgba(244,63,94,.3), transparent);
+    }
+    .lnm-text  { font-size: .92rem; line-height: 1.75; color: var(--text); font-weight: 400; }
+    .lnm-divider-bottom {
+      height: 1px; margin: 18px 0 14px;
+      background: linear-gradient(90deg, transparent, rgba(168,85,247,.25), transparent);
+    }
+    .lnm-date  { font-size: .68rem; color: var(--muted); }
 
     /* ── STREAK + WATER ROW ── */
     .chips-row { display: flex; gap: 8px; margin: 0 14px 12px; flex-wrap: wrap; }
@@ -511,6 +554,78 @@
     .hist-date { font-size: .82rem; font-weight: 600; }
     .hist-sub  { font-size: .7rem; color: var(--muted); margin-top: 2px; }
     .hist-flow { font-size: .68rem; padding: 3px 9px; border-radius: 10px; background: #f43f5e15; color: #f87171; flex-shrink: 0; }
+
+    /* ── WATER MODAL ── */
+    .water-modal {
+      position: fixed; inset: 0; z-index: 99;
+      display: flex; align-items: center; justify-content: center; padding: 24px;
+    }
+    .water-modal-card {
+      width: 100%; max-width: 290px;
+      background: linear-gradient(160deg, #030f1e, #0a1a2e);
+      border-radius: 24px; border: 1px solid rgba(6,182,212,.35);
+      box-shadow: 0 28px 64px rgba(0,0,0,.75), 0 0 0 1px rgba(6,182,212,.1);
+      padding: 28px 24px 26px; position: relative; text-align: center;
+      animation: letter-pop .3s cubic-bezier(.34,1.56,.64,1);
+    }
+    .wm-close {
+      position: absolute; top: 12px; right: 12px;
+      background: rgba(255,255,255,.07); border: none; color: var(--muted);
+      width: 28px; height: 28px; border-radius: 50%; font-size: .85rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; transition: all .2s;
+    }
+    .wm-close:hover { background: rgba(255,255,255,.14); color: var(--text); }
+    .wm-title { font-size: 1rem; font-weight: 700; color: #67e8f9; margin-bottom: 22px; }
+
+    /* Glass */
+    .glass-scene { position: relative; width: 80px; height: 128px; margin: 0 auto 22px; }
+    .pour-stream {
+      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 5px; border-radius: 0 0 3px 3px;
+      background: linear-gradient(180deg, transparent, rgba(6,182,212,.85));
+      animation: pour-anim 2.2s ease-out forwards;
+    }
+    @keyframes pour-anim {
+      0%   { height: 36px; opacity: 1; }
+      75%  { height: 36px; opacity: 1; }
+      100% { height: 0;    opacity: 0; }
+    }
+    .glass-body {
+      position: absolute; bottom: 0; left: 8px; right: 8px; height: 96px;
+      border: 3px solid rgba(103,232,249,.45); border-top: none;
+      border-radius: 0 0 16px 16px; overflow: hidden;
+      background: rgba(6,182,212,.04);
+    }
+    .water-fill {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 0%;
+      background: linear-gradient(180deg, #22d3ee55, #0e7490bb);
+      border-radius: 0 0 13px 13px;
+      animation: water-rise 2.4s cubic-bezier(.4,0,.2,1) forwards;
+      animation-delay: .3s;
+    }
+    @keyframes water-rise { 0% { height:0% } 100% { height:74% } }
+    .water-wave {
+      position: absolute; top: -6px; left: -25%; right: -25%; height: 12px;
+      background: rgba(6,182,212,.65); border-radius: 50%;
+      animation: wave-sway 1.1s ease-in-out infinite;
+    }
+    @keyframes wave-sway { 0%,100%{transform:translateX(-8%)} 50%{transform:translateX(8%)} }
+    .bubble {
+      position: absolute; background: rgba(103,232,249,.3);
+      border-radius: 50%; animation: bubble-up ease-in infinite;
+    }
+    .b1{width:5px;height:5px;left:22%;animation-duration:2.1s;animation-delay:1s;}
+    .b2{width:4px;height:4px;left:58%;animation-duration:2.6s;animation-delay:1.6s;}
+    .b3{width:6px;height:6px;left:40%;animation-duration:1.9s;animation-delay:2.1s;}
+    @keyframes bubble-up { 0%{bottom:5%;opacity:.8} 100%{bottom:95%;opacity:0} }
+    .glass-shine {
+      position: absolute; bottom: 4px; left: 10px; width: 5px; height: 60px;
+      background: linear-gradient(180deg,rgba(255,255,255,.18),transparent);
+      border-radius: 3px; pointer-events: none;
+    }
+
+    .wm-msg { font-size: .9rem; font-weight: 600; color: var(--text); }
+    .wm-sub { font-size: .74rem; color: var(--muted); margin-top: 5px; line-height: 1.55; }
 
     /* ── CONFETTI ── */
     .confetti-piece {
@@ -565,6 +680,43 @@
   <div class="mp-list-wrap" id="mp-list"></div>
 </div>
 
+<!-- ══════════════ LOVE NOTE OVERLAY ══════════════ -->
+<div id="love-note-overlay" class="music-overlay" style="display:none" onclick="closeLoveNote()"></div>
+<div id="love-note-modal" class="love-note-modal" style="display:none">
+  <div class="lnm-card">
+    <button class="lnm-close" onclick="closeLoveNote()">✕</button>
+    <span class="lnm-seal">💌</span>
+    <div class="lnm-label">Love Note of the Day</div>
+    <div class="lnm-divider"></div>
+    <div class="lnm-text" id="love-note-text"></div>
+    <div class="lnm-divider-bottom"></div>
+    <div class="lnm-date" id="love-note-date"></div>
+  </div>
+</div>
+
+<!-- ══════════════ WATER MODAL ══════════════ -->
+<div id="water-overlay" class="music-overlay" style="display:none" onclick="closeWaterModal()"></div>
+<div id="water-modal" class="water-modal" style="display:none">
+  <div class="water-modal-card">
+    <button class="wm-close" onclick="closeWaterModal()">✕</button>
+    <div class="wm-title">💧 Drink water, baby!</div>
+    <div class="glass-scene">
+      <div class="pour-stream" id="pour-stream"></div>
+      <div class="glass-body">
+        <div class="water-fill" id="water-fill">
+          <div class="water-wave"></div>
+          <div class="bubble b1"></div>
+          <div class="bubble b2"></div>
+          <div class="bubble b3"></div>
+        </div>
+      </div>
+      <div class="glass-shine"></div>
+    </div>
+    <div class="wm-msg">Stay hydrated 🌊</div>
+    <div class="wm-sub">Your body needs extra water<br>during this phase!</div>
+  </div>
+</div>
+
 <!-- ══════════════ HOME ══════════════ -->
 <div id="page-home" class="page active">
 
@@ -604,17 +756,20 @@
     <!-- filled by JS -->
   </div>
 
-  <div class="love-note-card" id="love-note-card">
-    <div class="ln-icon">💌</div>
-    <div class="ln-body">
-      <div class="ln-label">Love Note of the Day</div>
-      <div class="ln-text" id="love-note-text"></div>
-    </div>
+  <div id="love-note-btn-wrap" style="margin: 0 14px 12px;">
+    <button class="love-note-btn" id="love-note-btn" onclick="openLoveNote()">
+      <span class="ln-btn-icon">💌</span>
+      <div class="ln-btn-body">
+        <div class="ln-btn-label">Love Note of the Day</div>
+        <div class="ln-btn-hint">Tap to open ✨</div>
+      </div>
+      <span class="ln-btn-arrow">›</span>
+    </button>
   </div>
 
   <div class="chips-row" id="chips-row">
     <div class="streak-chip" id="streak-chip" style="display:none">🔥 <span id="streak-text"></span></div>
-    <div class="water-chip"  id="water-chip"  style="display:none">💧 Drink water, baby!</div>
+    <div class="water-chip"  id="water-chip"  style="display:none;cursor:pointer" onclick="openWaterModal()">💧 Drink water, baby!</div>
   </div>
 
   <div class="timeline-wrap">
@@ -730,9 +885,15 @@
 
   <!-- ── MESSAGES TAB ── -->
   <div id="lsec-messages" class="log-section" style="display:none">
+    <div class="log-card" style="margin-bottom:10px">
+      <div class="log-card-title">💌 Love Note of the Day</div>
+      <div style="font-size:.76rem;color:var(--muted);margin-bottom:12px">Write your message — this is what she'll see when she taps the button.</div>
+      <textarea id="inp-love-message" placeholder="Write your love note here..." style="height:110px;margin-bottom:10px"></textarea>
+      <button class="btn btn-primary" onclick="saveLoveMessage()">Save Note 💌</button>
+    </div>
     <div class="log-card" style="margin-bottom:14px">
-      <div class="log-card-title">💌 Phase Messages</div>
-      <div style="font-size:.76rem;color:var(--muted);margin-bottom:14px">Default messages are always shown. Add extra ones below per phase.</div>
+      <div class="log-card-title">🌸 Phase Messages</div>
+      <div style="font-size:.76rem;color:var(--muted);margin-bottom:14px">Add extra messages per phase shown during that part of the cycle.</div>
       <div id="tips-editor-body"></div>
     </div>
   </div>
@@ -1121,11 +1282,46 @@ const LOVE_NOTES = [
   "😚 I miss you. Come here. Mwah mwah mwah.",
 ];
 
-function getLoveNote() {
-  const d = new Date();
-  const start = new Date(d.getFullYear(), 0, 0);
-  const dayOfYear = Math.floor((d - start) / 86400000);
-  return LOVE_NOTES[(d.getFullYear() * 365 + dayOfYear) % LOVE_NOTES.length];
+function openWaterModal() {
+  // Restart animations by cloning the animated elements
+  const scene = document.querySelector('.glass-scene');
+  const oldStream = document.getElementById('pour-stream');
+  const oldFill   = document.getElementById('water-fill');
+
+  const newStream = oldStream.cloneNode(true);
+  const newFill   = oldFill.cloneNode(true);
+  oldStream.replaceWith(newStream);
+  oldFill.replaceWith(newFill);
+
+  document.getElementById('water-modal').style.display  = 'flex';
+  document.getElementById('water-overlay').style.display = 'block';
+}
+
+function closeWaterModal() {
+  document.getElementById('water-modal').style.display  = 'none';
+  document.getElementById('water-overlay').style.display = 'none';
+}
+
+function openLoveNote() {
+  const note = db.loveMessage || 'No love note yet 💌\n\nGo to Log → Messages to write one!';
+  document.getElementById('love-note-text').textContent = note;
+  document.getElementById('love-note-date').textContent =
+    new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+  document.getElementById('love-note-modal').style.display  = 'flex';
+  document.getElementById('love-note-overlay').style.display = 'block';
+}
+
+function closeLoveNote() {
+  document.getElementById('love-note-modal').style.display  = 'none';
+  document.getElementById('love-note-overlay').style.display = 'none';
+}
+
+function saveLoveMessage() {
+  const val = document.getElementById('inp-love-message').value.trim();
+  if (!val) { showToast('Write something first! 💌'); return; }
+  db.loveMessage = val;
+  save();
+  showToast('Love note saved! 💌');
 }
 
 // ════════════ CONFETTI ════════════
@@ -1524,8 +1720,8 @@ function renderHome() {
     tipArea.style.display = 'none';
   }
 
-  // Love note
-  document.getElementById('love-note-text').textContent = getLoveNote();
+  // Love note button — always visible
+  document.getElementById('love-note-btn-wrap').style.display = 'block';
 
   // Streak
   const streak = getStreak();
@@ -1822,7 +2018,8 @@ function importData(input) {
 function clearData() {
   if (!confirm('Delete all data? This cannot be undone.')) return;
   db = { cycles:[], moods:[], cycleLength:28, periodLength:5, delayed:false, ovulationDate:null, bootstrapped:true,
-         customTips: db.customTips || {}, hiddenDefaultTips: db.hiddenDefaultTips || {} };
+         customTips: db.customTips || {}, hiddenDefaultTips: db.hiddenDefaultTips || {},
+         loveMessage: db.loveMessage || '' };
   save();
   document.getElementById('inp-cycle-len').value = 28;
   document.getElementById('inp-period-len').value = 5;
@@ -2084,7 +2281,7 @@ function switchLogTab(tab) {
     document.getElementById('ltab-'+t).classList.toggle('active', t === tab);
   });
   if (tab === 'mood')     { renderRecentLogs(); }
-  if (tab === 'messages') { renderTipsEditor(); }
+  if (tab === 'messages') { renderTipsEditor(); document.getElementById('inp-love-message').value = db.loveMessage || ''; }
   if (tab === 'period')   { renderCycleHistory(); }
 }
 
