@@ -436,6 +436,91 @@
     .sync-dot.syncing { background: #f59e0b; animation: pulse-dot 1s ease-in-out infinite; }
     .sync-dot.error   { background: #f43f5e; }
     @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    /* ── LOG TABS ── */
+    .log-tabs {
+      display: flex; gap: 6px; padding: 14px 14px 0;
+    }
+    .log-tab {
+      flex: 1; padding: 9px 4px; border-radius: 12px; font-size: .65rem;
+      font-weight: 600; cursor: pointer; transition: all .2s; font-family: inherit;
+      border: 1px solid var(--border); background: var(--card2); color: var(--muted);
+      line-height: 1.3;
+    }
+    .log-tab.active {
+      background: linear-gradient(135deg,#f43f5e22,#a855f722);
+      border-color: #f43f5e50; color: var(--text);
+    }
+    .log-section { padding-top: 12px; }
+
+    /* ── FLOW INTENSITY ── */
+    .flow-grid { display: flex; gap: 8px; margin-bottom: 12px; }
+    .flow-btn {
+      flex: 1; background: var(--card2); border: 2px solid transparent;
+      border-radius: 14px; padding: 10px 4px; cursor: pointer;
+      text-align: center; transition: all .2s; font-family: inherit;
+    }
+    .flow-btn:hover { transform: scale(1.05); border-color: #ffffff25; }
+    .flow-btn.selected { border-color: #f43f5e; background: #f43f5e18; }
+    .flow-btn .f-emoji { font-size: 1.35rem; display: block; }
+    .flow-btn .f-label { font-size: .6rem; color: var(--muted); margin-top: 3px; }
+    .flow-btn.selected .f-label { color: #f87171; }
+
+    /* ── PAIN SLIDER ── */
+    input[type="range"] {
+      width: 100%; accent-color: #f43f5e; height: 6px;
+      border-radius: 3px; cursor: pointer;
+      background: var(--card2); border: none; padding: 0; outline: none;
+    }
+    .pain-labels { display: flex; justify-content: space-between; font-size: .63rem; color: var(--muted); margin-top: 4px; }
+    .pain-val { font-size: .82rem; font-weight: 700; color: #f43f5e; text-align: center; margin-top: 6px; }
+
+    /* ── LOVE NOTE ── */
+    .love-note-card {
+      margin: 0 14px 12px;
+      background: linear-gradient(135deg, #f43f5e0d, #a855f718);
+      border: 1px solid #f43f5e25; border-radius: 18px; padding: 16px;
+      display: flex; align-items: flex-start; gap: 10px;
+    }
+    .ln-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .ln-body { flex: 1; }
+    .ln-label { font-size: .63rem; color: #f87171; text-transform: uppercase; letter-spacing: .6px; font-weight: 700; margin-bottom: 5px; }
+    .ln-text { font-size: .82rem; line-height: 1.6; color: var(--text); }
+
+    /* ── STREAK + WATER ROW ── */
+    .chips-row { display: flex; gap: 8px; margin: 0 14px 12px; flex-wrap: wrap; }
+    .streak-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #a855f715; border: 1px solid #a855f730;
+      border-radius: 20px; padding: 6px 13px; font-size: .74rem; color: #c084fc;
+    }
+    .water-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #06b6d412; border: 1px solid #06b6d430;
+      border-radius: 20px; padding: 6px 13px; font-size: .74rem; color: #67e8f9;
+    }
+
+    /* ── CYCLE HISTORY ── */
+    .hist-entry {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+    }
+    .hist-entry:last-child { border-bottom: none; }
+    .hist-dot { width: 10px; height: 10px; border-radius: 50%; background: #f43f5e; flex-shrink: 0; }
+    .hist-body { flex: 1; }
+    .hist-date { font-size: .82rem; font-weight: 600; }
+    .hist-sub  { font-size: .7rem; color: var(--muted); margin-top: 2px; }
+    .hist-flow { font-size: .68rem; padding: 3px 9px; border-radius: 10px; background: #f43f5e15; color: #f87171; flex-shrink: 0; }
+
+    /* ── CONFETTI ── */
+    .confetti-piece {
+      position: fixed; pointer-events: none; z-index: 9999; border-radius: 2px;
+      animation: confetti-fall 1.3s ease-in forwards;
+    }
+    @keyframes confetti-fall {
+      0%   { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
   </style>
 </head>
 <body>
@@ -519,6 +604,19 @@
     <!-- filled by JS -->
   </div>
 
+  <div class="love-note-card" id="love-note-card">
+    <div class="ln-icon">💌</div>
+    <div class="ln-body">
+      <div class="ln-label">Love Note of the Day</div>
+      <div class="ln-text" id="love-note-text"></div>
+    </div>
+  </div>
+
+  <div class="chips-row" id="chips-row">
+    <div class="streak-chip" id="streak-chip" style="display:none">🔥 <span id="streak-text"></span></div>
+    <div class="water-chip"  id="water-chip"  style="display:none">💧 Drink water, baby!</div>
+  </div>
+
   <div class="timeline-wrap">
     <div class="timeline-title">Cycle Timeline</div>
     <div class="timeline-bar" id="tl-bar"></div>
@@ -562,82 +660,114 @@
 <!-- ══════════════ LOG ══════════════ -->
 <div id="page-log" class="page">
 
-  <div class="log-card">
-    <div class="log-card-title">🩸 Period Log</div>
-    <div class="field-group">
-      <label class="field-label">Period Start Date</label>
-      <input type="date" id="inp-period-start">
-    </div>
-    <div class="field-group">
-      <label class="field-label">Period End Date <span style="color:var(--muted)">(optional)</span></label>
-      <input type="date" id="inp-period-end">
-    </div>
-    <button class="btn btn-primary" onclick="savePeriod()">Save Period</button>
+  <!-- Tab bar -->
+  <div class="log-tabs">
+    <button class="log-tab active" id="ltab-period"   onclick="switchLogTab('period')">🩸 Period</button>
+    <button class="log-tab"        id="ltab-mood"     onclick="switchLogTab('mood')">💭 Mood</button>
+    <button class="log-tab"        id="ltab-messages" onclick="switchLogTab('messages')">💌 Messages</button>
+    <button class="log-tab"        id="ltab-settings" onclick="switchLogTab('settings')">⚙️ Settings</button>
   </div>
 
-  <div class="log-card" style="margin-top:10px">
-    <div class="log-card-title">💭 Log Mood & Symptoms</div>
-
-    <div class="field-group">
-      <label class="field-label">Date</label>
-      <input type="date" id="inp-mood-date">
-    </div>
-
-    <div class="section-sub">How are you feeling?</div>
-    <div class="mood-grid" id="log-mood-grid"></div>
-
-    <div class="section-sub" style="margin-top:4px">Symptoms <span style="color:var(--muted);font-size:.7rem">(select all that apply)</span></div>
-    <div class="symptom-grid" id="log-symptom-grid"></div>
-
-    <div class="field-group">
-      <label class="field-label">Note <span style="color:var(--muted)">(optional)</span></label>
-      <textarea id="inp-mood-note" placeholder="Add details..."></textarea>
-    </div>
-    <button class="btn btn-primary" onclick="saveMoodLog()">Save Entry</button>
-  </div>
-
-  <div class="log-card" style="margin-top:10px">
-    <div class="log-card-title">🗂 Recent Entries <span style="font-size:.72rem;color:var(--muted);font-weight:400;margin-left:4px">tap × to delete</span></div>
-    <div id="recent-log-list"><div class="empty-state">No entries yet.</div></div>
-  </div>
-
-  <div class="log-card" style="margin-top:10px">
-    <div class="log-card-title">💌 Add Phase Messages</div>
-    <div style="font-size:.76rem;color:var(--muted);margin-bottom:14px">Default messages are always shown. Add extra ones below per phase.</div>
-    <div id="tips-editor-body"></div>
-  </div>
-
-  <div class="log-card" style="margin-top:10px;margin-bottom:14px">
-    <div class="log-card-title">⚙️ Cycle Settings</div>
-
-    <div class="settings-row">
-      <div><div class="row-label">Cycle Length (days)</div><div class="row-desc">Average length of your cycle</div></div>
-      <input type="number" id="inp-cycle-len" min="21" max="60" onchange="saveSettings()">
-    </div>
-    <div class="settings-row">
-      <div><div class="row-label">Period Length (days)</div><div class="row-desc">How many days your period lasts</div></div>
-      <input type="number" id="inp-period-len" min="1" max="10" onchange="saveSettings()">
-    </div>
-    <div class="settings-row">
-      <div><div class="row-label" style="color:#fbbf24">⏳ Cycle is Delayed</div><div class="row-desc">Ovulation hasn't happened yet</div></div>
-      <label class="toggle">
-        <input type="checkbox" id="toggle-delayed" onchange="onDelayedToggle()">
-        <span class="toggle-slider"></span>
-      </label>
-    </div>
-
-    <div id="delayed-panel" style="display:none">
-      <div class="delayed-panel">
-        <p>Your cycle is running longer than expected — totally normal! When ovulation happens, log it below and Maia will auto-update your cycle length and predict your next period.</p>
-        <button class="btn btn-ovulation" onclick="logOvulation()">🌟 Log Ovulation Today</button>
+  <!-- ── PERIOD TAB ── -->
+  <div id="lsec-period" class="log-section">
+    <div class="log-card">
+      <div class="log-card-title">🩸 Period Log</div>
+      <div class="field-group">
+        <label class="field-label">Period Start Date</label>
+        <input type="date" id="inp-period-start">
       </div>
+      <div class="field-group">
+        <label class="field-label">Period End Date <span style="color:var(--muted)">(optional)</span></label>
+        <input type="date" id="inp-period-end">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Flow Intensity <span style="color:var(--muted)">(optional)</span></label>
+        <div class="flow-grid">
+          <button class="flow-btn" id="flow-light"  onclick="selectFlow('light')"><span class="f-emoji">🌸</span><span class="f-label">Light</span></button>
+          <button class="flow-btn" id="flow-medium" onclick="selectFlow('medium')"><span class="f-emoji">💧</span><span class="f-label">Medium</span></button>
+          <button class="flow-btn" id="flow-heavy"  onclick="selectFlow('heavy')"><span class="f-emoji">🩸</span><span class="f-label">Heavy</span></button>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="savePeriod()">Save Period</button>
     </div>
 
-    <div style="margin-top:14px;display:flex;flex-direction:column;gap:8px">
-      <button class="btn btn-secondary" onclick="exportData()">📤 Export Data</button>
-      <button class="btn btn-secondary" onclick="document.getElementById('import-file-input').click()">📥 Import Data</button>
-      <input type="file" id="import-file-input" accept=".json" style="display:none" onchange="importData(this)">
-      <button class="btn btn-danger"    onclick="clearData()">🗑 Clear All Data</button>
+    <div class="log-card" style="margin-top:10px;margin-bottom:14px">
+      <div class="log-card-title">📋 Cycle History</div>
+      <div id="cycle-history-list"><div class="empty-state">No cycles logged yet.</div></div>
+    </div>
+  </div>
+
+  <!-- ── MOOD TAB ── -->
+  <div id="lsec-mood" class="log-section" style="display:none">
+    <div class="log-card">
+      <div class="log-card-title">💭 Log Mood & Symptoms</div>
+      <div class="field-group">
+        <label class="field-label">Date</label>
+        <input type="date" id="inp-mood-date">
+      </div>
+      <div class="section-sub">How are you feeling?</div>
+      <div class="mood-grid" id="log-mood-grid"></div>
+      <div class="section-sub" style="margin-top:4px">Symptoms <span style="color:var(--muted);font-size:.7rem">(select all that apply)</span></div>
+      <div class="symptom-grid" id="log-symptom-grid"></div>
+      <div class="field-group">
+        <label class="field-label">Pain Level <span style="color:var(--muted)">(optional)</span></label>
+        <input type="range" id="inp-pain-level" min="0" max="10" value="0" oninput="updatePainLabel()">
+        <div class="pain-labels"><span>None</span><span>Mild</span><span>Moderate</span><span>Severe</span></div>
+        <div class="pain-val" id="pain-val-label">No pain 😊</div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Note <span style="color:var(--muted)">(optional)</span></label>
+        <textarea id="inp-mood-note" placeholder="Add details..."></textarea>
+      </div>
+      <button class="btn btn-primary" onclick="saveMoodLog()">Save Entry</button>
+    </div>
+
+    <div class="log-card" style="margin-top:10px;margin-bottom:14px">
+      <div class="log-card-title">🗂 Recent Entries <span style="font-size:.72rem;color:var(--muted);font-weight:400;margin-left:4px">tap × to delete</span></div>
+      <div id="recent-log-list"><div class="empty-state">No entries yet.</div></div>
+    </div>
+  </div>
+
+  <!-- ── MESSAGES TAB ── -->
+  <div id="lsec-messages" class="log-section" style="display:none">
+    <div class="log-card" style="margin-bottom:14px">
+      <div class="log-card-title">💌 Phase Messages</div>
+      <div style="font-size:.76rem;color:var(--muted);margin-bottom:14px">Default messages are always shown. Add extra ones below per phase.</div>
+      <div id="tips-editor-body"></div>
+    </div>
+  </div>
+
+  <!-- ── SETTINGS TAB ── -->
+  <div id="lsec-settings" class="log-section" style="display:none">
+    <div class="log-card" style="margin-bottom:14px">
+      <div class="log-card-title">⚙️ Cycle Settings</div>
+      <div class="settings-row">
+        <div><div class="row-label">Cycle Length (days)</div><div class="row-desc">Average length of your cycle</div></div>
+        <input type="number" id="inp-cycle-len" min="21" max="60" onchange="saveSettings()">
+      </div>
+      <div class="settings-row">
+        <div><div class="row-label">Period Length (days)</div><div class="row-desc">How many days your period lasts</div></div>
+        <input type="number" id="inp-period-len" min="1" max="10" onchange="saveSettings()">
+      </div>
+      <div class="settings-row">
+        <div><div class="row-label" style="color:#fbbf24">⏳ Cycle is Delayed</div><div class="row-desc">Ovulation hasn't happened yet</div></div>
+        <label class="toggle">
+          <input type="checkbox" id="toggle-delayed" onchange="onDelayedToggle()">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div id="delayed-panel" style="display:none">
+        <div class="delayed-panel">
+          <p>Your cycle is running longer than expected — totally normal! When ovulation happens, log it below and Maia will auto-update your cycle length and predict your next period.</p>
+          <button class="btn btn-ovulation" onclick="logOvulation()">🌟 Log Ovulation Today</button>
+        </div>
+      </div>
+      <div style="margin-top:14px;display:flex;flex-direction:column;gap:8px">
+        <button class="btn btn-secondary" onclick="exportData()">📤 Export Data</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('import-file-input').click()">📥 Import Data</button>
+        <input type="file" id="import-file-input" accept=".json" style="display:none" onchange="importData(this)">
+        <button class="btn btn-danger" onclick="clearData()">🗑 Clear All Data</button>
+      </div>
     </div>
   </div>
 
@@ -956,6 +1086,136 @@ const DELAYED_INFO = {
   ]
 };
 
+// ════════════ LOVE NOTES ════════════
+
+const LOVE_NOTES = [
+  "💕 You make every single day so much better just by being you, Cybbiii.",
+  "🌸 I'm so lucky to have someone as beautiful and strong as you.",
+  "😚 Thinking of you always, especially today. Mwah!",
+  "🫂 I wish I could be there to hold you right now, baby.",
+  "✨ You are literally the most important person in my world.",
+  "🍓 I hope today is as sweet as you are, Cybbiii.",
+  "💝 Whatever you're feeling today, just know I love you so so much.",
+  "🌟 You are my favorite human being and I'm so proud of you.",
+  "🥺 Please take care of yourself today, you mean everything to me.",
+  "💌 Just a reminder that you are loved, cherished, and so beautiful.",
+  "🍵 Have you eaten yet? Kain ka na baby, love you!",
+  "😄 Smile! You look so good when you smile, my Cybbiii.",
+  "💗 I love you more than words can say. More than everything.",
+  "🌺 You are blooming and thriving and I'm here cheering for you always.",
+  "🥰 My heart is literally so full because of you, Cybbiii.",
+  "🫶 You are enough. More than enough. You are everything.",
+  "🌙 Rest well tonight baby, I'll be thinking of you.",
+  "🍫 Treat yourself today, you deserve it always.",
+  "✨ Today is going to be a good day because you're in it.",
+  "💖 You are so incredibly loved, never ever forget that.",
+  "🎵 I wish I was there singing your favorite song with you rn.",
+  "🌈 After every storm there's a rainbow, and you are mine.",
+  "😍 Can I just say — you are so gorgeous? Because you are.",
+  "🍑 Take it easy today baby, you've been working so hard.",
+  "💓 My love for you grows every single day, no cap.",
+  "🌸 You are the prettiest person I've ever seen, inside and out.",
+  "🫂 Big virtual hug from me to you, right now. Feel it?",
+  "💝 I'm always on your side, no matter what. Always.",
+  "🌟 You light up every room and every day, Cybbiii.",
+  "😚 I miss you. Come here. Mwah mwah mwah.",
+];
+
+function getLoveNote() {
+  const d = new Date();
+  const start = new Date(d.getFullYear(), 0, 0);
+  const dayOfYear = Math.floor((d - start) / 86400000);
+  return LOVE_NOTES[(d.getFullYear() * 365 + dayOfYear) % LOVE_NOTES.length];
+}
+
+// ════════════ CONFETTI ════════════
+
+function launchConfetti() {
+  const colors = ['#f43f5e','#a855f7','#f97316','#f59e0b','#06b6d4','#ec4899','#8b5cf6','#fb7185'];
+  for (let i = 0; i < 65; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    const size = 6 + Math.random() * 8;
+    p.style.cssText = `
+      left:${Math.random()*100}vw; top:-12px;
+      width:${size}px; height:${size}px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      border-radius:${Math.random()>.5?'50%':'3px'};
+      animation-delay:${Math.random()*.5}s;
+      animation-duration:${.9+Math.random()*.8}s;
+    `;
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 2200);
+  }
+}
+
+// ════════════ STREAK ════════════
+
+function getStreak() {
+  if (!db.moods.length) return 0;
+  const dates = new Set(db.moods.map(e => e.date));
+  let streak = 0;
+  const cur = new Date(); cur.setHours(0,0,0,0);
+  // If today not logged yet, start counting from yesterday
+  if (!dates.has(toDateStr(cur))) cur.setDate(cur.getDate() - 1);
+  while (dates.has(toDateStr(cur))) {
+    streak++;
+    cur.setDate(cur.getDate() - 1);
+  }
+  return streak;
+}
+
+// ════════════ FLOW INTENSITY ════════════
+
+let selectedFlow = null;
+
+function selectFlow(f) {
+  selectedFlow = f;
+  ['light','medium','heavy'].forEach(x =>
+    document.getElementById('flow-'+x).classList.toggle('selected', x === f)
+  );
+}
+
+function resetFlow() {
+  selectedFlow = null;
+  ['light','medium','heavy'].forEach(x =>
+    document.getElementById('flow-'+x).classList.remove('selected')
+  );
+}
+
+// ════════════ PAIN LEVEL ════════════
+
+function updatePainLabel() {
+  const v = parseInt(document.getElementById('inp-pain-level').value);
+  const labels = ['No pain 😊','Very mild 🙂','Mild 😐','Mild-ish 😕','Moderate 😣','Moderate 😣','Noticeable 😖','Strong 😫','Severe 😭','Very severe 😭','Unbearable 💀'];
+  document.getElementById('pain-val-label').textContent = v === 0 ? 'No pain 😊' : `${v}/10 — ${labels[v]}`;
+}
+
+// ════════════ CYCLE HISTORY ════════════
+
+function renderCycleHistory() {
+  const el = document.getElementById('cycle-history-list');
+  if (!el) return;
+  if (!db.cycles.length) { el.innerHTML = '<div class="empty-state">No cycles logged yet.</div>'; return; }
+  const sorted = [...db.cycles].sort((a,b) => new Date(b.start) - new Date(a.start));
+  const flowMap = { light:'🌸 Light', medium:'💧 Medium', heavy:'🩸 Heavy' };
+  el.innerHTML = sorted.map(c => {
+    const start = parseLocalDate(c.start);
+    const end   = c.end ? parseLocalDate(c.end) : null;
+    const dur   = end ? daysBetween(c.start, c.end) + 1 : null;
+    const label = start.toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
+    const endLabel = end ? parseLocalDate(c.end).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : null;
+    return `<div class="hist-entry">
+      <div class="hist-dot"></div>
+      <div class="hist-body">
+        <div class="hist-date">🩸 ${label}</div>
+        <div class="hist-sub">${endLabel ? `Ended ${endLabel} · ${dur} days` : 'End date not logged'}</div>
+      </div>
+      ${c.flow ? `<div class="hist-flow">${flowMap[c.flow]||c.flow}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
 // ════════════ STATE ════════════
 
 let db = {
@@ -1264,6 +1524,24 @@ function renderHome() {
     tipArea.style.display = 'none';
   }
 
+  // Love note
+  document.getElementById('love-note-text').textContent = getLoveNote();
+
+  // Streak
+  const streak = getStreak();
+  const streakChip = document.getElementById('streak-chip');
+  const waterChip  = document.getElementById('water-chip');
+  if (streak >= 2) {
+    streakChip.style.display = 'inline-flex';
+    document.getElementById('streak-text').textContent = `${streak} day streak! Keep it up 🔥`;
+  } else {
+    streakChip.style.display = 'none';
+  }
+
+  // Water reminder during menstrual, luteal, or delayed
+  const showWater = phase === 'menstrual' || phase === 'luteal' || isDelayed || isAutoLate;
+  waterChip.style.display = showWater ? 'inline-flex' : 'none';
+
   renderTimeline(cd);
   renderMoodGrid('home-mood-grid');
 }
@@ -1327,9 +1605,10 @@ function quickLogMood() {
   if (!homeMoodSel) { showToast('Pick a mood first! 💜'); return; }
   const today = toDateStr(new Date());
   const existing = db.moods.find(e => e.date === today);
-  storeMood(today, homeMoodSel, existing ? (existing.symptoms || []) : [], existing ? existing.note : '');
+  storeMood(today, homeMoodSel, existing ? (existing.symptoms || []) : [], existing ? existing.note : '', existing ? existing.painLevel : null);
   homeMoodSel = null;
   renderMoodGrid('home-mood-grid');
+  launchConfetti();
   showToast('Mood logged! 💜');
 }
 
@@ -1407,13 +1686,15 @@ function savePeriod() {
   const e = document.getElementById('inp-period-end').value;
   if (!s) { showToast('Select a start date'); return; }
   db.cycles = db.cycles.filter(c => c.start !== s);
-  db.cycles.push({ start: s, end: e || null });
+  db.cycles.push({ start: s, end: e || null, flow: selectedFlow || null });
   db.ovulationDate = null;
   const todayDiff = daysBetween(s, toDateStr(new Date())) + 1;
   db.delayed = todayDiff > db.cycleLength;
   document.getElementById('toggle-delayed').checked = db.delayed;
   document.getElementById('delayed-panel').style.display = db.delayed ? 'block' : 'none';
-  save(); renderAll();
+  resetFlow();
+  save(); renderAll(); renderCycleHistory();
+  launchConfetti();
   showToast(db.delayed ? 'Period saved! Looks like your cycle may be delayed ⏳' : 'Period saved! 🩸');
 }
 
@@ -1422,18 +1703,22 @@ function saveMoodLog() {
   const n = document.getElementById('inp-mood-note').value.trim();
   if (!d) { showToast('Select a date'); return; }
   if (!logMoodSel && logSymptomsSel.size === 0) { showToast('Select a mood or symptom'); return; }
-  storeMood(d, logMoodSel, [...logSymptomsSel], n);
+  const painLevel = parseInt(document.getElementById('inp-pain-level').value);
+  storeMood(d, logMoodSel, [...logSymptomsSel], n, painLevel > 0 ? painLevel : null);
   logMoodSel = null; logSymptomsSel.clear();
   renderMoodGrid('log-mood-grid');
   renderSymptomGrid();
   document.getElementById('inp-mood-note').value = '';
+  document.getElementById('inp-pain-level').value = 0;
+  updatePainLabel();
   renderRecentLogs();
+  launchConfetti();
   showToast('Entry saved! 💜');
 }
 
-function storeMood(date, moodId, symptoms, note) {
+function storeMood(date, moodId, symptoms, note, painLevel) {
   db.moods = db.moods.filter(e => e.date !== date);
-  db.moods.push({ date, mood: moodId || null, symptoms: symptoms || [], note: note || '' });
+  db.moods.push({ date, mood: moodId || null, symptoms: symptoms || [], note: note || '', painLevel: painLevel || null });
   save();
   if (document.getElementById('page-insights').classList.contains('active')) renderInsights();
 }
@@ -1460,7 +1745,7 @@ function renderRecentLogs() {
       <div class="rle-emoji">${mood ? mood.emoji : '🩺'}</div>
       <div class="rle-body">
         <div class="rle-date">${dl}</div>
-        <div class="rle-info">${mood ? mood.label : '(symptoms only)'}${syms.length ? ' · '+syms.join(''): ''}</div>
+        <div class="rle-info">${mood ? mood.label : '(symptoms only)'}${syms.length ? ' · '+syms.join(''): ''}${e.painLevel ? ' · 😣 '+e.painLevel+'/10' : ''}</div>
         ${e.note ? `<div class="rle-note">"${e.note}"</div>` : ''}
       </div>
       <button class="rle-del" onclick="deleteLog('${e.date}')" title="Delete">×</button>
@@ -1536,7 +1821,8 @@ function importData(input) {
 
 function clearData() {
   if (!confirm('Delete all data? This cannot be undone.')) return;
-  db = { cycles:[], moods:[], cycleLength:28, periodLength:5, delayed:false, ovulationDate:null, bootstrapped:true };
+  db = { cycles:[], moods:[], cycleLength:28, periodLength:5, delayed:false, ovulationDate:null, bootstrapped:true,
+         customTips: db.customTips || {}, hiddenDefaultTips: db.hiddenDefaultTips || {} };
   save();
   document.getElementById('inp-cycle-len').value = 28;
   document.getElementById('inp-period-len').value = 5;
@@ -1790,6 +2076,18 @@ function renderInsights() {
   }
 }
 
+// ════════════ LOG TABS ════════════
+
+function switchLogTab(tab) {
+  ['period','mood','messages','settings'].forEach(t => {
+    document.getElementById('lsec-'+t).style.display  = t === tab ? 'block' : 'none';
+    document.getElementById('ltab-'+t).classList.toggle('active', t === tab);
+  });
+  if (tab === 'mood')     { renderRecentLogs(); }
+  if (tab === 'messages') { renderTipsEditor(); }
+  if (tab === 'period')   { renderCycleHistory(); }
+}
+
 // ════════════ NAVIGATION ════════════
 
 function goPage(name) {
@@ -1799,7 +2097,7 @@ function goPage(name) {
   document.getElementById('nb-'+name).classList.add('active');
   if (name === 'calendar') renderCalendar();
   if (name === 'insights') renderInsights();
-  if (name === 'log')      { renderRecentLogs(); renderTipsEditor(); }
+  if (name === 'log')      { switchLogTab('period'); }
   window.scrollTo({ top:0, behavior:'smooth' });
 }
 
@@ -1826,9 +2124,22 @@ function renderAll() {
 function initFirebaseSync() {
   fbRef.on('value', snapshot => {
     const remote = snapshot.val();
-    if (!remote) return;
+    if (!remote) {
+      // Firebase is empty — safe to push our initial local state
+      save();
+      return;
+    }
     if (remote._ts && remote._ts === db._ts) return;
-    db = { ...db, ...remote, bootstrapped: true };
+    // Merge: keep the richer customTips/hiddenDefaultTips between local and remote
+    const mergedCustomTips = {};
+    const allPhases = ['menstrual','follicular','ovulation','luteal'];
+    for (const p of allPhases) {
+      const localTips  = (db.customTips && db.customTips[p]) || [];
+      const remoteTips = (remote.customTips && remote.customTips[p]) || [];
+      mergedCustomTips[p] = remoteTips.length >= localTips.length ? remoteTips : localTips;
+    }
+    const mergedHidden = remote.hiddenDefaultTips || db.hiddenDefaultTips || {};
+    db = { ...db, ...remote, bootstrapped: true, customTips: mergedCustomTips, hiddenDefaultTips: mergedHidden };
     localStorage.setItem('cybi-v1', JSON.stringify(db));
     document.getElementById('inp-cycle-len').value    = db.cycleLength;
     document.getElementById('inp-period-len').value   = db.periodLength;
@@ -1849,7 +2160,7 @@ function init() {
     db.cycles      = [{ start:'2026-05-07', end:'2026-05-11' }];
     db.delayed     = true;
     db.bootstrapped = true;
-    save();
+    // Don't save() here — let initFirebaseSync decide after checking Firebase
   }
 
   const todayStr = toDateStr(new Date());
@@ -1863,6 +2174,7 @@ function init() {
   renderSymptomGrid();
   renderRecentLogs();
   renderTipsEditor();
+  renderCycleHistory();
   renderHome();
   initFirebaseSync();
 }
