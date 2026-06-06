@@ -554,6 +554,29 @@
     .hist-date { font-size: .82rem; font-weight: 600; }
     .hist-sub  { font-size: .7rem; color: var(--muted); margin-top: 2px; }
     .hist-flow { font-size: .68rem; padding: 3px 9px; border-radius: 10px; background: #f43f5e15; color: #f87171; flex-shrink: 0; }
+    .hist-edit-btn { background: none; border: none; color: var(--muted); font-size: .8rem; padding: 5px 7px; border-radius: 8px; cursor: pointer; flex-shrink: 0; transition: all .15s; }
+    .hist-edit-btn:hover { background: rgba(255,255,255,.07); color: var(--text); }
+
+    /* ── EDIT CYCLE MODAL ── */
+    .edit-cycle-modal { position: fixed; inset: 0; z-index: 99; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .ecm-card {
+      width: 100%; max-width: 300px; background: var(--card);
+      border-radius: 20px; border: 1px solid var(--border);
+      box-shadow: 0 20px 50px rgba(0,0,0,.55); padding: 22px 20px 20px;
+      position: relative; animation: letter-pop .25s cubic-bezier(.34,1.56,.64,1);
+    }
+    .ecm-title { font-size: .95rem; font-weight: 700; margin-bottom: 18px; text-align: center; }
+    .ecm-field { margin-bottom: 13px; }
+    .ecm-field label { font-size: .72rem; color: var(--muted); display: block; margin-bottom: 5px; }
+    .ecm-field input[type=date] {
+      width: 100%; padding: 9px 12px; border-radius: 10px; box-sizing: border-box;
+      border: 1px solid var(--border); background: var(--surface);
+      color: var(--text); font-size: .85rem; outline: none;
+    }
+    .ecm-field input[type=date]:focus { border-color: var(--accent); }
+    .ecm-actions { display: flex; gap: 10px; margin-top: 18px; }
+    .ecm-delete { flex: 1; padding: 10px; border-radius: 12px; border: 1px solid #f43f5e40; background: #f43f5e10; color: #f87171; font-size: .84rem; cursor: pointer; }
+    .ecm-save   { flex: 1.5; padding: 10px; border-radius: 12px; border: none; background: var(--accent); color: #fff; font-size: .84rem; font-weight: 600; cursor: pointer; }
 
     /* ── WATER MODAL ── */
     .water-modal {
@@ -651,6 +674,30 @@
     <button class="wm-close" onclick="closeWaterModal()">✕</button>
     <div class="wm-title">💧 Drink water, baby!</div>
     <canvas id="water-canvas" width="270" height="310" style="display:block;border-radius:12px;margin:0 auto"></canvas>
+  </div>
+</div>
+
+<!-- ══════════════ EDIT CYCLE MODAL ══════════════ -->
+<div id="edit-cycle-overlay" class="music-overlay" style="display:none" onclick="closeEditCycle()"></div>
+<div id="edit-cycle-modal" class="edit-cycle-modal" style="display:none">
+  <div class="ecm-card">
+    <button class="lnm-close" onclick="closeEditCycle()">✕</button>
+    <div class="ecm-title">✏️ Edit Period</div>
+    <input type="hidden" id="ecm-original-start">
+    <div class="ecm-field">
+      <label>Start date</label>
+      <input type="date" id="ecm-start">
+      <div style="font-size:.68rem;color:var(--muted);margin-top:4px;padding-left:2px">Format: mm/dd/yyyy</div>
+    </div>
+    <div class="ecm-field">
+      <label>End date</label>
+      <input type="date" id="ecm-end">
+      <div style="font-size:.68rem;color:var(--muted);margin-top:4px;padding-left:2px">Format: mm/dd/yyyy</div>
+    </div>
+    <div class="ecm-actions">
+      <button class="ecm-delete" onclick="deleteEditCycle()">🗑 Delete</button>
+      <button class="ecm-save"   onclick="saveEditCycle()">Save</button>
+    </div>
   </div>
 </div>
 
@@ -1604,8 +1651,45 @@ function renderCycleHistory() {
         <div class="hist-sub">${endLabel ? `Ended ${endLabel} · ${dur} days` : 'End date not logged'}</div>
       </div>
       ${c.flow ? `<div class="hist-flow">${flowMap[c.flow]||c.flow}</div>` : ''}
+      <button class="hist-edit-btn" onclick="openEditCycle('${c.start}')">✏️</button>
     </div>`;
   }).join('');
+}
+
+function openEditCycle(startDate) {
+  const cycle = db.cycles.find(c => c.start === startDate);
+  if (!cycle) return;
+  document.getElementById('ecm-original-start').value = startDate;
+  document.getElementById('ecm-start').value = cycle.start;
+  document.getElementById('ecm-end').value   = cycle.end || '';
+  document.getElementById('edit-cycle-modal').style.display  = 'flex';
+  document.getElementById('edit-cycle-overlay').style.display = 'block';
+}
+
+function closeEditCycle() {
+  document.getElementById('edit-cycle-modal').style.display  = 'none';
+  document.getElementById('edit-cycle-overlay').style.display = 'none';
+}
+
+function saveEditCycle() {
+  const originalStart = document.getElementById('ecm-original-start').value;
+  const newStart = document.getElementById('ecm-start').value;
+  const newEnd   = document.getElementById('ecm-end').value;
+  if (!newStart) { showToast('Start date is required'); return; }
+  const idx = db.cycles.findIndex(c => c.start === originalStart);
+  if (idx === -1) return;
+  db.cycles[idx] = { ...db.cycles[idx], start: newStart, end: newEnd || null };
+  save(); renderAll(); renderCycleHistory();
+  closeEditCycle();
+  showToast('Period updated! ✏️');
+}
+
+function deleteEditCycle() {
+  const originalStart = document.getElementById('ecm-original-start').value;
+  db.cycles = db.cycles.filter(c => c.start !== originalStart);
+  save(); renderAll(); renderCycleHistory();
+  closeEditCycle();
+  showToast('Period removed 🗑️');
 }
 
 // ════════════ STATE ════════════
