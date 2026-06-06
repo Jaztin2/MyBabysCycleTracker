@@ -2622,7 +2622,7 @@ function initFirebaseSync() {
     document.getElementById('inp-period-len').value   = db.periodLength;
     document.getElementById('toggle-delayed').checked = db.delayed;
     document.getElementById('delayed-panel').style.display = db.delayed ? 'block' : 'none';
-    renderAll(); renderRecentLogs(); renderTipsEditor();
+    renderAll(); renderRecentLogs(); renderTipsEditor(); renderCycleHistory();
     setSyncDot('synced');
   });
 }
